@@ -142,3 +142,36 @@
     -fx-border-radius: 4;
     -fx-padding: 15;
 }
+/* --- WYKRESY RAPORTÓW (Charts) --- */
+
+/* Tło wykresu */
+.chart {
+    -fx-padding: 10;
+    -fx-background-color: transparent;
+}
+.chart-content {
+    -fx-background-color: transparent;
+}
+
+/* Osie i etykiety */
+.axis {
+    -fx-tick-label-fill: #8b92a1; /* Szary kolor tekstu osi */
+}
+.axis-label {
+    -fx-text-fill: #8b92a1;
+}
+
+/* --- Wykres Liniowy (Trend) --- */
+/* Seria 1: Przychody (Zielony/Morski) */
+.default-color0.chart-series-line { -fx-stroke: #4c9a6a; -fx-stroke-width: 2px; }
+.default-color0.chart-line-symbol { -fx-background-color: #4c9a6a, white; }
+
+/* Seria 2: Wydatki (Czerwony/Burgund) */
+.default-color1.chart-series-line { -fx-stroke: #8a3c3c; -fx-stroke-width: 2px; }
+.default-color1.chart-line-symbol { -fx-background-color: #8a3c3c, white; }
+
+/* --- Wykres Słupkowy (Kategorie) --- */
+.bar-chart .chart-bar {
+    -fx-background-color: #4fa3c7; /* Steel Blue */
+    -fx-background-radius: 2 2 0 0;
+}

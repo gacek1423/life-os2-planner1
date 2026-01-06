@@ -12,14 +12,14 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        // 1. Upewnij się, że baza danych istnieje (tworzy tabelę przy pierwszym starcie)
+        // Inicjalizacja bazy
         DatabaseService.initDatabase();
 
-        // 2. Załaduj widok z FXML
-        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("dashboard.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 800, 600);
+        // Ładowanie GŁÓWNEGO DASHBOARDU (bez logowania)
+        FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/com/budget/dashboard.fxml"));
+        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
 
-        stage.setTitle("Budget App - JDBC & JavaFX");
+        stage.setTitle("Life OS 2.0");
         stage.setScene(scene);
         stage.show();
     }

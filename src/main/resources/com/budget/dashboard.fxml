@@ -43,7 +43,6 @@
                 <VBox styleClass="card" alignment="TOP_CENTER" spacing="15" prefWidth="320">
                     <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
                     <BorderPane.margin><Insets top="0" right="20" bottom="20" left="0"/></BorderPane.margin>
-
                     <Label text="STRUKTURA WYDATKÓW" styleClass="card-title"/>
                     <PieChart fx:id="expenseChart" labelsVisible="false" legendSide="BOTTOM" VBox.vgrow="ALWAYS"/>
                 </VBox>
@@ -78,14 +77,13 @@
                         <DatePicker fx:id="taskDatePicker" promptText="Termin" prefWidth="120"/>
                         <Button text="DODAJ ZADANIE" onAction="#handleAddTask" styleClass="button-action"/>
                     </HBox>
-
                     <Label text="LISTA ZADAŃ" styleClass="card-title" style="-fx-padding: 10 0 0 5;"/>
-
                     <ListView fx:id="taskListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-padding: 5;"/>
                 </VBox>
             </center>
         </BorderPane>
     </Tab>
+
     <Tab text="CELE">
         <BorderPane>
             <center>
@@ -97,15 +95,71 @@
                         <DatePicker fx:id="goalDatePicker" promptText="Termin (opcjonalnie)" prefWidth="150"/>
                         <Button text="DODAJ CEL" onAction="#handleAddGoal" styleClass="button-action"/>
                     </HBox>
-
                     <Label text="MOJE CELE FINANSOWE" styleClass="card-title" style="-fx-padding: 10 0 0 5;"/>
-
                     <ListView fx:id="goalListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent; -fx-padding: 5;"/>
                 </VBox>
             </center>
         </BorderPane>
     </Tab>
 
-</TabPane>
+    <Tab text="RAPORTY">
+        <BorderPane>
+            <center>
+                <VBox spacing="20" style="-fx-padding: 20;">
+
+                    <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                        <padding><Insets top="10" right="20" bottom="10" left="10"/></padding>
+                        <Label text="TREND PRZYCHODÓW I WYDATKÓW (Ostatnie 12 msc)" styleClass="card-title" style="-fx-padding: 0 0 10 10;"/>
+                        <LineChart fx:id="trendChart">
+                            <xAxis><CategoryAxis label="Miesiąc"/></xAxis>
+                            <yAxis><NumberAxis label="Kwota (PLN)"/></yAxis>
+                        </LineChart>
+                    </VBox>
+
+                    <VBox styleClass="card" VBox.vgrow="ALWAYS">
+                        <padding><Insets top="10" right="20" bottom="10" left="10"/></padding>
+                        <Label text="NA CO WYDAJESZ? (Analiza Kategorii)" styleClass="card-title" style="-fx-padding: 0 0 10 10;"/>
+                        <BarChart fx:id="categoryBarChart">
+                            <xAxis><CategoryAxis label="Kategoria"/></xAxis>
+                            <yAxis><NumberAxis label="Suma Wydatków"/></yAxis>
+                        </BarChart>
+                    </VBox>
+
+                </VBox>
+            </center>
+        </BorderPane>
+    </Tab>
+    <Tab text="USTAWIENIA">
+        <BorderPane>
+            <center>
+                <VBox spacing="20" style="-fx-padding: 40;" alignment="TOP_CENTER">
+
+                    <VBox styleClass="card" maxWidth="600">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label text="ZARZĄDZANIE DANYMI" styleClass="card-title"/>
+                        <Label text="Pobierz swoje dane finansowe do formatu CSV (zgodny z Excel)."
+                               style="-fx-text-fill: #8b92a1; -fx-padding: 5 0 15 0;"/>
+
+                        <Button text="EKSPORTUJ DO CSV" onAction="#handleExport"
+                                styleClass="button-action" style="-fx-background-color: #4fa3c7;"/>
+                    </VBox>
+
+                    <VBox styleClass="card" maxWidth="600" style="-fx-border-color: #8a3c3c;">
+                        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+                        <Label text="STREFA NIEBEZPIECZNA" styleClass="card-title" style="-fx-text-fill: #8a3c3c;"/>
+                        <Label text="Usuń wszystkie transakcje, zadania i cele. Tej operacji nie można cofnąć."
+                               style="-fx-text-fill: #8b92a1; -fx-padding: 5 0 15 0;"/>
+
+                        <Button text="RESETUJ APLIKACJĘ (Wyczyść Bazę)" onAction="#handleClearDatabase"
+                                styleClass="button-action" style="-fx-background-color: #8a3c3c; -fx-text-fill: white;"/>
+                    </VBox>
+
+                    <Label text="Life OS v1.0 | Build 2024" style="-fx-text-fill: #50546d; -fx-font-size: 10px;"/>
+                </VBox>
+            </center>
+        </BorderPane>
+    </Tab>
+
+
 
 </TabPane>

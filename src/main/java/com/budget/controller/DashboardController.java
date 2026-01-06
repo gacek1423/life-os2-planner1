@@ -10,7 +10,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.chart.PieChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -19,9 +19,19 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
+import com.budget.service.DataExporter;
+import javafx.stage.Stage;
+import com.budget.db.DatabaseService;
+import java.sql.Connection;
+import java.sql.Statement;
+
+
 import java.time.LocalDate;
+import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 public class DashboardController {
 
@@ -48,6 +58,9 @@ public class DashboardController {
     @FXML private TextField goalCurrentField;
     @FXML private DatePicker goalDatePicker;
     @FXML private ListView<Goal> goalListView;
+    // --- RAPORTY (NOWOŚĆ) ---
+    @FXML private LineChart<String, Number> trendChart;
+    @FXML private BarChart<String, Number> categoryBarChart;
 
     // --- DAO (Dostęp do bazy) ---
     private final TransactionDAO transactionDAO = new TransactionDAO();
@@ -88,11 +101,27 @@ public class DashboardController {
     private void setupTable() {
         colDate.setCellValueFactory(new PropertyValueFactory<>("date"));
         colType.setCellValueFactory(new PropertyValueFactory<>("type"));
-        colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
         colDesc.setCellValueFactory(new PropertyValueFactory<>("description"));
-        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
 
-        // Kolorowanie kwot
+        // 1. Kolumna KATEGORIA z ikonami (Emoji)
+        colCategory.setCellValueFactory(new PropertyValueFactory<>("category"));
+        colCategory.setCellFactory(column -> new TableCell<Transaction, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                } else {
+                    // Dodajemy ikonę w zależności od słowa kluczowego
+                    String icon = getIconForCategory(item);
+                    setText(icon + " " + item);
+                    setStyle("-fx-font-weight: bold; -fx-text-fill: #e1e4e8;");
+                }
+            }
+        });
+
+        // 2. Kolumna KWOTA z kolorami
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
         colAmount.setCellFactory(column -> new TableCell<Transaction, Double>() {
             @Override
             protected void updateItem(Double amount, boolean empty) {
@@ -100,13 +129,30 @@ public class DashboardController {
                 if (empty || amount == null) {
                     setText(null);
                 } else {
-                    setText(String.format("%.2f", amount));
+                    setText(String.format("%.2f zł", amount));
                     Transaction t = getTableView().getItems().get(getIndex());
-                    if ("WYDATEK".equals(t.getType())) setTextFill(Color.web("#8a3c3c")); // Czerwony (Burgundy)
-                    else setTextFill(Color.web("#4c9a6a")); // Zielony (Emerald)
+                    if ("WYDATEK".equals(t.getType())) setTextFill(Color.web("#8a3c3c")); // Czerwony
+                    else setTextFill(Color.web("#4c9a6a")); // Zielony
                 }
             }
         });
+    }
+
+    // Metoda pomocnicza dobierająca ikony
+    private String getIconForCategory(String category) {
+        String catLower = category.toLowerCase();
+
+        if (catLower.contains("jedzenie") || catLower.contains("spożywcze") || catLower.contains("restauracja")) return "🍔";
+        if (catLower.contains("dom") || catLower.contains("czynsz") || catLower.contains("mieszkanie")) return "🏠";
+        if (catLower.contains("paliwo") || catLower.contains("auto") || catLower.contains("transport") || catLower.contains("uber")) return "🚗";
+        if (catLower.contains("zakupy") || catLower.contains("ubrania") || catLower.contains("sklep")) return "🛍️";
+        if (catLower.contains("rozrywka") || catLower.contains("kino") || catLower.contains("netflix") || catLower.contains("gry")) return "🎮";
+        if (catLower.contains("zdrowie") || catLower.contains("leki") || catLower.contains("lekarz")) return "❤️";
+        if (catLower.contains("wypłata") || catLower.contains("przelew") || catLower.contains("biznes")) return "💰";
+        if (catLower.contains("edukacja") || catLower.contains("kurs") || catLower.contains("książki")) return "📚";
+        if (catLower.contains("rachunki") || catLower.contains("prąd") || catLower.contains("internet")) return "⚡";
+
+        return "📁"; // Domyślna ikona folderu
     }
 
     @FXML
@@ -216,6 +262,7 @@ public class DashboardController {
         refreshTasks();
     }
 
+
     private void refreshTasks() {
         taskListView.setItems(FXCollections.observableArrayList(taskDAO.getAllTasks()));
     }
@@ -273,6 +320,47 @@ public class DashboardController {
             }
         });
     }
+    @FXML
+    private void handleExport() {
+        DataExporter exporter = new DataExporter();
+        // Pobieramy aktualne okno aplikacji, aby wyświetlić dialog zapisu
+        Stage stage = (Stage) typeBox.getScene().getWindow();
+
+        // Pobieramy wszystkie transakcje
+        ObservableList<Transaction> list = FXCollections.observableArrayList(transactionDAO.getAllTransactions());
+
+        exporter.exportTransactionsToCSV(list, stage);
+    }
+
+    @FXML
+    private void handleClearDatabase() {
+        // Proste zabezpieczenie - Alert potwierdzenia
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Potwierdzenie");
+        alert.setHeaderText("Czy na pewno chcesz usunąć WSZYSTKIE dane?");
+        alert.setContentText("Tej operacji nie można cofnąć.");
+
+        if (alert.showAndWait().get() == ButtonType.OK) {
+            clearAllTables();
+            refreshAll(); // Odśwież widoki (będą puste)
+        }
+    }
+
+    private void clearAllTables() {
+        String sql1 = "DELETE FROM transactions";
+        String sql2 = "DELETE FROM tasks";
+        String sql3 = "DELETE FROM goals";
+
+        try (Connection conn = DatabaseService.connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.executeUpdate(sql1);
+            stmt.executeUpdate(sql2);
+            stmt.executeUpdate(sql3);
+            System.out.println("Baza danych wyczyszczona.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @FXML
     private void handleAddGoal() {
@@ -298,6 +386,55 @@ public class DashboardController {
             System.err.println("Błąd formatu liczby w formularzu celów!");
         }
     }
+    // ================== RAPORTY (NOWA LOGIKA) ==================
+
+    private void refreshReports(ObservableList<Transaction> transactions) {
+        // 1. Przygotowanie danych do Wykresu Liniowego (Trend miesięczny)
+        // Używamy TreeMap, aby miesiące były posortowane automatycznie
+        Map<YearMonth, Double> incomeByMonth = new TreeMap<>();
+        Map<YearMonth, Double> expenseByMonth = new TreeMap<>();
+
+        // 2. Przygotowanie danych do Wykresu Słupkowego (Kategorie)
+        Map<String, Double> categoryExpenseMap = new HashMap<>();
+
+        for (Transaction t : transactions) {
+            YearMonth ym = YearMonth.from(t.getDate());
+
+            if ("PRZYCHÓD".equals(t.getType())) {
+                incomeByMonth.merge(ym, t.getAmount(), Double::sum);
+            } else {
+                expenseByMonth.merge(ym, t.getAmount(), Double::sum);
+                categoryExpenseMap.merge(t.getCategory(), t.getAmount(), Double::sum);
+            }
+        }
+        // --- KONFIGURACJA WYKRESU LINIOWEGO ---
+        XYChart.Series<String, Number> incomeSeries = new XYChart.Series<>();
+        incomeSeries.setName("Przychody");
+        XYChart.Series<String, Number> expenseSeries = new XYChart.Series<>();
+        expenseSeries.setName("Wydatki");
+
+        // Łączymy wszystkie miesiące z obu map, żeby oś X była spójna
+        incomeByMonth.forEach((ym, amount) ->
+                incomeSeries.getData().add(new XYChart.Data<>(ym.toString(), amount)));
+
+        expenseByMonth.forEach((ym, amount) ->
+                expenseSeries.getData().add(new XYChart.Data<>(ym.toString(), amount)));
+
+        trendChart.getData().clear();
+        trendChart.getData().addAll(incomeSeries, expenseSeries);
+
+        // --- KONFIGURACJA WYKRESU SŁUPKOWEGO ---
+        XYChart.Series<String, Number> categorySeries = new XYChart.Series<>();
+        categorySeries.setName("Kategorie");
+
+        categoryExpenseMap.forEach((cat, amount) ->
+                categorySeries.getData().add(new XYChart.Data<>(cat, amount)));
+
+        categoryBarChart.getData().clear();
+        categoryBarChart.getData().add(categorySeries);
+    }
+
+
 
     private void refreshGoals() {
         goalListView.setItems(FXCollections.observableArrayList(goalDAO.getAllGoals()));
