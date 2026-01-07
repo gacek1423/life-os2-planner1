@@ -32,7 +32,7 @@
                 <Button fx:id="btnZadania" text="✅  ZADANIA" onAction="#showZadania" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
                 <Button fx:id="btnCele" text="🏆  CELE" onAction="#showCele" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
                 <Button fx:id="btnRaporty" text="📊  RAPORTY" onAction="#showRaporty" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
-
+                <Button fx:id="btnKalendarz" text="📅  KALENDARZ" onAction="#showKalendarz" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
                 <Region VBox.vgrow="ALWAYS"/>
 
                 <Button fx:id="btnUstawienia" text="⚙️  SYSTEM" onAction="#showUstawienia" styleClass="sidebar-button" maxWidth="Infinity" alignment="CENTER_LEFT"/>
@@ -251,6 +251,37 @@
                                 </HBox>
 
                             </VBox>
+                        </content>
+                    </ScrollPane>
+                </VBox>
+                <VBox fx:id="viewKalendarz" visible="false" spacing="20" style="-fx-padding: 30;">
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <VBox>
+                            <Label text="Globalny Kalendarz" styleClass="header-title"/>
+                            <Label text="Planuj przepływy pieniężne i zadania w czasie." style="-fx-text-fill: #8b92a1;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <HBox spacing="10" alignment="CENTER">
+                            <Button text="◀" onAction="#prevCalMonth" styleClass="icon-button"/>
+                            <Label fx:id="calMonthLabel" text="STYCZEŃ 2026" styleClass="month-label" style="-fx-font-size: 16px;"/>
+                            <Button text="▶" onAction="#nextCalMonth" styleClass="icon-button"/>
+                        </HBox>
+                    </HBox>
+
+                    <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+                        <content>
+                            <GridPane fx:id="calendarGrid" styleClass="calendar-grid" hgap="10" vgap="10">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                                </columnConstraints>
+                            </GridPane>
                         </content>
                     </ScrollPane>
                 </VBox>

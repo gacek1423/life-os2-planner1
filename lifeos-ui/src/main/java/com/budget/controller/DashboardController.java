@@ -57,6 +57,13 @@ public class DashboardController {
     @FXML private AreaChart<String, Number> reportTrendChart;
     @FXML private BarChart<String, Number> reportSavingsChart, reportCategoryChart;
     @FXML private Button btnGenerateReport;
+    // Navigation
+    @FXML private Button btnKalendarz;
+    // Views
+    @FXML private VBox viewKalendarz;
+    // Calendar Widgets
+    @FXML private GridPane calendarGrid;
+    @FXML private Label calMonthLabel;
 
 
 
@@ -67,6 +74,7 @@ public class DashboardController {
     private PurseManager purseManager;
     private ReportManager reportManager;
     private SettingsManager settingsManager;
+    private CalendarManager calendarManager;
 
     @FXML
     public void initialize() {
@@ -82,7 +90,7 @@ public class DashboardController {
         purseManager = new PurseManager(purseContainer);
 
         reportManager = new ReportManager(reportTrendChart, reportSavingsChart, reportCategoryChart, repAvgIncome, repAvgExpense, repTotalSavings);
-
+        calendarManager = new com.budget.controller.managers.CalendarManager(calendarGrid, calMonthLabel,this::handleCalendarDateSelect /* <-- Nowy callback*/);
         // 2. Setup (Konfiguracja wstępna)
         financeManager.setup();
         taskManager.setup();
@@ -96,16 +104,53 @@ public class DashboardController {
             financeManager.refreshFinances();
             purseManager.refreshPurses(); // Finanse wpływają na portfele
             reportManager.refreshReports(); // I na raporty
+            calendarManager.refreshCalendar();
         }));
 
         EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> taskManager.refreshTasks()));
         EventBus.subscribe(GoalAddedEvent.class, e -> Platform.runLater(() -> goalManager.refreshGoals()));
+        EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> calendarManager.refreshCalendar()));
+
 
         // Inne
         showKokpit();
     }
 
     // --- ACTIONS (Delegowanie do managerów) ---
+    // Metoda wywoływana, gdy klikniesz dzień w kalendarzu
+    // Metoda wywoływana, gdy klikniesz dzień w kalendarzu
+    private void handleCalendarDateSelect(java.time.LocalDate date) {
+        // Tworzymy dialog
+        ChoiceDialog<String> dialog = new ChoiceDialog<>("Transakcja", "Transakcja", "Zadanie");
+        dialog.setTitle("Planer");
+        dialog.setHeaderText("Planowanie dla: " + date);
+        dialog.setContentText("Co chcesz dodać?");
+
+        // 1. Podpinamy nasz styl CSS do dialogu
+        // Fix: Używamy pełnej ścieżki do zasobu
+        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/com/budget/style.css").toExternalForm());
+
+        // 2. Usuwamy standardową, brzydką ikonę "?" (grafika null)
+        dialog.setGraphic(null);
+
+        // 3. Opcjonalnie: Ustawiamy ikonę okna (Stage) na logo aplikacji (jeśli masz ikonę)
+        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
+        // stage.getIcons().add(new Image(...)); // Odkomentuj jeśli masz ikonę
+
+        dialog.showAndWait().ifPresent(type -> {
+            if ("Transakcja".equals(type)) {
+                showFinanse();
+                datePicker.setValue(date);
+                // Mały trick: uruchamiamy focus z opóźnieniem, żeby zadziałał po przełączeniu widoku
+                Platform.runLater(() -> amountField.requestFocus());
+            } else {
+                showZadania();
+                taskDatePicker.setValue(date);
+                Platform.runLater(() -> taskTitleField.requestFocus());
+            }
+        });
+    }
+
 
     @FXML private void handleAddTransaction() { financeManager.addTransaction(); }
     @FXML private void prevMonth() { financeManager.prevMonth(); }
@@ -133,6 +178,7 @@ public class DashboardController {
         viewCele.setVisible(false);
         viewRaporty.setVisible(false);
         viewUstawienia.setVisible(false);
+        viewKalendarz.setVisible(false);
 
         List<Button> btns = Arrays.asList(btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia);
         btns.forEach(b -> b.getStyleClass().remove("sidebar-button-active"));
@@ -145,4 +191,7 @@ public class DashboardController {
     @FXML private void handleExport() {settingsManager.exportData((Stage) rootPane.getScene().getWindow());}
     @FXML private void handleBackup() {settingsManager.createDatabaseBackup((Stage) rootPane.getScene().getWindow());}
     @FXML private void handleClearDatabase() {settingsManager.clearDatabase();}
+    @FXML public void showKalendarz() { switchView(viewKalendarz, btnKalendarz); calendarManager.refreshCalendar(); }
+    @FXML private void prevCalMonth() { calendarManager.prevMonth(); }
+    @FXML private void nextCalMonth() { calendarManager.nextMonth(); }
 }
