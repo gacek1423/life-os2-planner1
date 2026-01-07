@@ -42,29 +42,67 @@
         <center>
             <StackPane style="-fx-background-color: #1f2229;">
 
-                <VBox fx:id="viewKokpit" spacing="20" style="-fx-padding: 30;" visible="true">
-                    <Label text="Dzień dobry! Oto Twój status." styleClass="header-title"/>
+                <VBox fx:id="viewKokpit" spacing="25" style="-fx-padding: 30;" visible="true">
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <VBox>
+                            <Label text="Centrum Dowodzenia" styleClass="header-title"/>
+                            <Label text="Oto Twój dzisiejszy przegląd sytuacji." style="-fx-text-fill: #8b92a1;"/>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblDate" text="Data..." style="-fx-text-fill: #8b92a1; -fx-font-size: 14px;"/>
+                    </HBox>
 
                     <HBox spacing="20">
-                        <VBox styleClass="card-highlight" prefWidth="250" style="-fx-padding: 20;">
-                            <Label text="SALDO CAŁKOWITE" style="-fx-text-fill: white; -fx-opacity: 0.7;"/>
-                            <Label fx:id="dashBalanceLabel" text="0.00 PLN" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                        <VBox styleClass="card-highlight" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
+                            <Label text="DOSTĘPNE ŚRODKI" style="-fx-text-fill: white; -fx-opacity: 0.8; -fx-font-size: 10px;"/>
+                            <Label fx:id="dashBalanceLabel" text="0.00 PLN" style="-fx-text-fill: white; -fx-font-size: 26px; -fx-font-weight: bold;"/>
                         </VBox>
-                        <VBox styleClass="card" prefWidth="250" style="-fx-padding: 20;">
-                            <Label text="ZADANIA NA DZIŚ" styleClass="card-subtitle"/>
-                            <Label fx:id="dashTasksLabel" text="0 do zrobienia" styleClass="card-value"/>
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="PILNE ZADANIA" styleClass="card-subtitle"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="🔥" style="-fx-font-size: 16px;"/>
+                            </HBox>
+                            <Label fx:id="dashTasksLabel" text="0 zadań" styleClass="card-value"/>
+                            <Label text="wymaga Twojej uwagi" style="-fx-text-fill: #8b92a1; -fx-font-size: 10px;"/>
                         </VBox>
-                        <VBox styleClass="card" prefWidth="250" style="-fx-padding: 20;">
-                            <Label text="AKTYWNE CELE" styleClass="card-subtitle"/>
-                            <Label fx:id="dashGoalsLabel" text="0 w toku" styleClass="card-value"/>
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
+                            <HBox alignment="CENTER_LEFT" spacing="10">
+                                <Label text="PŁYNNOŚĆ FINANSOWA" styleClass="card-subtitle"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="📈" style="-fx-font-size: 16px;"/>
+                            </HBox>
+                            <Label fx:id="lblBudgetSummary" text="Analiza..." style="-fx-text-fill: #51cf66; -fx-font-size: 14px; -fx-font-weight: bold; padding: 10 0 0 0;"/>
                         </VBox>
                     </HBox>
 
-                    <Label text="Szybkie Akcje" styleClass="section-title"/>
-                    <HBox spacing="15">
-                        <Button text="+ Nowy Wydatek" onAction="#showFinanse" styleClass="button-outline"/>
-                        <Button text="+ Nowe Zadanie" onAction="#showZadania" styleClass="button-outline"/>
-                        <Button text="Ctrl+K (Komendy)" onAction="#toggleCommandPalette" styleClass="button-outline" style="-fx-opacity: 0.5;"/>
+                    <VBox spacing="10">
+                        <Label text="MOJE PORTFELE (WIRTUALNE KONTA)" styleClass="card-subtitle"/>
+                        <ScrollPane fitToHeight="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+                            <content>
+                                <HBox fx:id="purseContainer" spacing="20" style="-fx-background-color: transparent;"/>
+                            </content>
+                        </ScrollPane>
+                    </VBox>
+
+                    <HBox spacing="20" VBox.vgrow="ALWAYS">
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" style="-fx-padding: 20;">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="OSTATNIE TRANSAKCJE" styleClass="card-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="Zobacz wszystkie" onAction="#showFinanse" styleClass="icon-button" style="-fx-font-size: 10px;"/>
+                            </HBox>
+                            <ListView fx:id="recentTransactionsList" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS"/>
+                        </VBox>
+
+                        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="10" style="-fx-padding: 20;">
+                            <HBox alignment="CENTER_LEFT">
+                                <Label text="NAJBLIŻSZE TERMINY" styleClass="card-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button text="+ Nowe" onAction="#showZadania" styleClass="icon-button" style="-fx-font-size: 10px;"/>
+                            </HBox>
+                            <ListView fx:id="urgentTasksList" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS"/>
+                        </VBox>
                     </HBox>
                 </VBox>
 
@@ -101,19 +139,36 @@
                             </TableView>
                         </VBox>
                     </center>
+
                     <right>
-                        <VBox styleClass="card" alignment="TOP_CENTER" spacing="15" prefWidth="300">
-                            <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
-                            <BorderPane.margin><Insets top="20" right="20" bottom="20" left="0"/></BorderPane.margin>
-                            <Label text="STRUKTURA" styleClass="card-title"/>
-                            <PieChart fx:id="expenseChart" labelsVisible="false" legendSide="BOTTOM" VBox.vgrow="ALWAYS"/>
-                            <Separator/>
-                            <Label text="SALDO MIESIĄCA" styleClass="card-subtitle"/>
-                            <Label fx:id="balanceLabel" text="0.00" styleClass="card-value-big"/>
-                            <HBox alignment="CENTER" spacing="20">
-                                <VBox alignment="CENTER"><Label text="Wpływy" styleClass="card-subtitle"/><Label fx:id="incomeLabel" text="0.00" style="-fx-text-fill: #4c9a6a;"/></VBox>
-                                <VBox alignment="CENTER"><Label text="Wydatki" styleClass="card-subtitle"/><Label fx:id="expenseLabel" text="0.00" style="-fx-text-fill: #8a3c3c;"/></VBox>
-                            </HBox>
+                        <VBox spacing="15" prefWidth="320" style="-fx-padding: 20 20 20 0;">
+                            <VBox styleClass="card" alignment="TOP_CENTER" spacing="10" VBox.vgrow="ALWAYS">
+                                <Label text="STRUKTURA WYDATKÓW" styleClass="card-title" style="-fx-padding: 10;"/>
+                                <PieChart fx:id="expenseChart" labelsVisible="false" legendSide="BOTTOM" VBox.vgrow="ALWAYS" maxHeight="200"/>
+                            </VBox>
+
+                            <VBox styleClass="card" alignment="TOP_CENTER" spacing="10" VBox.vgrow="ALWAYS">
+                                <Label text="REALIZACJA BUDŻETU" styleClass="card-title" style="-fx-padding: 10;"/>
+                                <ListView fx:id="budgetListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;"/>
+                            </VBox>
+
+                            <VBox styleClass="card" style="-fx-padding: 20; -fx-background-color: #2a3d4d; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 5);">
+                                <Label text="BILANS MIESIĄCA" styleClass="card-subtitle" style="-fx-text-fill: #8b92a1; -fx-font-weight: bold;"/>
+                                <HBox alignment="CENTER_LEFT" spacing="15">
+                                    <Label fx:id="balanceLabel" text="0.00" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                                        <HBox spacing="5" alignment="CENTER_RIGHT">
+                                            <Label text="▲" style="-fx-text-fill: #51cf66; -fx-font-size: 10px;"/>
+                                            <Label fx:id="incomeLabel" text="+0.00" style="-fx-text-fill: #51cf66; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                        </HBox>
+                                        <HBox spacing="5" alignment="CENTER_RIGHT">
+                                            <Label text="▼" style="-fx-text-fill: #ff6b6b; -fx-font-size: 10px;"/>
+                                            <Label fx:id="expenseLabel" text="-0.00" style="-fx-text-fill: #ff6b6b; -fx-font-weight: bold; -fx-font-size: 12px;"/>
+                                        </HBox>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
                         </VBox>
                     </right>
                 </BorderPane>
@@ -141,29 +196,154 @@
                     <ListView fx:id="goalListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;"/>
                 </VBox>
 
-                <VBox fx:id="viewRaporty" visible="false" spacing="20" style="-fx-padding: 20;">
-                    <HBox spacing="20" VBox.vgrow="ALWAYS">
-                        <VBox styleClass="card" HBox.hgrow="ALWAYS">
-                            <Label text="TREND PRZYCHODÓW I WYDATKÓW" styleClass="card-title" style="-fx-padding: 10;"/>
-                            <LineChart fx:id="trendChart"><xAxis><CategoryAxis label="Miesiąc"/></xAxis><yAxis><NumberAxis/></yAxis></LineChart>
+                <VBox fx:id="viewRaporty" spacing="20" style="-fx-padding: 30;" visible="false" alignment="TOP_CENTER">
+                    <HBox alignment="CENTER_LEFT" spacing="20">
+                        <VBox>
+                            <Label text="Zaawansowana Analityka" styleClass="header-title"/>
+                            <Label text="Pełny przekrój Twojej kondycji finansowej (Ostatnie 12 miesięcy)." style="-fx-text-fill: #8b92a1;"/>
                         </VBox>
-                        <VBox styleClass="card" HBox.hgrow="ALWAYS">
-                            <Label text="ANALIZA KATEGORII" styleClass="card-title" style="-fx-padding: 10;"/>
-                            <BarChart fx:id="categoryBarChart"><xAxis><CategoryAxis/></xAxis><yAxis><NumberAxis/></yAxis></BarChart>
-                        </VBox>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnGenerateReport" text="Generuj Raport (HTML/PDF)" onAction="#handleGenerateReport" styleClass="button-action"/>
                     </HBox>
+
+                    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+                        <content>
+                            <VBox spacing="20" style="-fx-background-color: transparent;">
+                                <HBox spacing="20" alignment="CENTER">
+                                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 15;">
+                                        <Label text="ŚREDNI PRZYCHÓD" style="-fx-text-fill: #8b92a1; -fx-font-size: 10px; font-weight: bold;"/>
+                                        <Label fx:id="repAvgIncome" text="0 PLN" style="-fx-text-fill: #51cf66; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                    </VBox>
+                                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 15;">
+                                        <Label text="ŚREDNI WYDATEK" style="-fx-text-fill: #8b92a1; -fx-font-size: 10px; font-weight: bold;"/>
+                                        <Label fx:id="repAvgExpense" text="0 PLN" style="-fx-text-fill: #ff6b6b; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                    </VBox>
+                                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 15;">
+                                        <Label text="ROCZNE OSZCZĘDNOŚCI" style="-fx-text-fill: #8b92a1; -fx-font-size: 10px; font-weight: bold;"/>
+                                        <Label fx:id="repTotalSavings" text="0 PLN" style="-fx-text-fill: #4fa3c7; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+                                    </VBox>
+                                </HBox>
+
+                                <VBox styleClass="card" style="-fx-padding: 20;">
+                                    <Label text="PRZEPŁYWY PIENIĘŻNE (YOY)" styleClass="card-title"/>
+                                    <AreaChart fx:id="reportTrendChart" createSymbols="false" legendSide="TOP" minHeight="300">
+                                        <xAxis><CategoryAxis label="Miesiąc"/></xAxis>
+                                        <yAxis><NumberAxis label="Kwota (PLN)"/></yAxis>
+                                    </AreaChart>
+                                </VBox>
+
+                                <HBox spacing="20">
+                                    <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
+                                        <Label text="STOPA OSZCZĘDNOŚCI (%)" styleClass="card-title"/>
+                                        <BarChart fx:id="reportSavingsChart" legendVisible="false" minHeight="250">
+                                            <xAxis><CategoryAxis label="Miesiąc"/></xAxis>
+                                            <yAxis><NumberAxis label="Procent (%)"/></yAxis>
+                                        </BarChart>
+                                    </VBox>
+
+                                    <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 20;">
+                                        <Label text="GŁÓWNE KATEGORIE KOSZTÓW" styleClass="card-title"/>
+                                        <BarChart fx:id="reportCategoryChart" legendVisible="false" minHeight="250" horizontalGridLinesVisible="true">
+                                            <xAxis><CategoryAxis label="Kategoria"/></xAxis>
+                                            <yAxis><NumberAxis label="Suma Wydatków"/></yAxis>
+                                        </BarChart>
+                                    </VBox>
+                                </HBox>
+
+                            </VBox>
+                        </content>
+                    </ScrollPane>
                 </VBox>
 
-                <VBox fx:id="viewUstawienia" visible="false" spacing="20" style="-fx-padding: 40;" alignment="TOP_CENTER">
-                    <VBox styleClass="card" maxWidth="600" style="-fx-padding: 20;">
-                        <Label text="ZARZĄDZANIE DANYMI" styleClass="card-title"/>
-                        <Label text="Pobierz swoje dane finansowe do formatu CSV." style="-fx-text-fill: gray;"/>
-                        <Button text="EKSPORTUJ DO CSV" onAction="#handleExport" styleClass="button-action"/>
-                    </VBox>
-                    <VBox styleClass="card" maxWidth="600" style="-fx-padding: 20; -fx-border-color: #8a3c3c;">
-                        <Label text="STREFA NIEBEZPIECZNA" styleClass="card-title" style="-fx-text-fill: #8a3c3c;"/>
-                        <Button text="RESETUJ APLIKACJĘ" onAction="#handleClearDatabase" styleClass="button-action" style="-fx-background-color: #8a3c3c;"/>
-                    </VBox>
+                <VBox fx:id="viewUstawienia" visible="false" spacing="20" style="-fx-padding: 30;">
+
+                    <Label text="Konfiguracja Systemu" styleClass="header-title"/>
+                    <Label text="Zarządzaj swoim profilem i danymi." style="-fx-text-fill: #8b92a1; -fx-padding: 0 0 20 0;"/>
+
+                    <HBox spacing="30" VBox.vgrow="ALWAYS">
+
+                        <VBox spacing="20" HBox.hgrow="ALWAYS">
+                            <VBox styleClass="card" style="-fx-padding: 20;">
+                                <Label text="PROFIL UŻYTKOWNIKA" styleClass="settings-section-title"/>
+                                <HBox alignment="CENTER_LEFT" spacing="15" style="-fx-padding: 15 0 0 0;">
+                                    <StackPane>
+                                        <Circle radius="25" fill="#323642"/>
+                                        <Label text="JP" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                    </StackPane>
+                                    <VBox>
+                                        <Label text="Jan Płatnik" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+                                        <Label text="Administrator (Enterprise Lic.)" styleClass="settings-value"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+
+                            <VBox styleClass="card" style="-fx-padding: 20;" spacing="15">
+                                <Label text="PREFERENCJE APLIKACJI" styleClass="settings-section-title"/>
+
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox>
+                                        <Label text="Główna Waluta" styleClass="settings-label"/>
+                                        <Label text="Używana w raportach i kokpicie" styleClass="settings-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <ComboBox promptText="PLN (Polski Złoty)" style="-fx-pref-width: 150;"/>
+                                </HBox>
+                                <Separator style="-fx-opacity: 0.1;"/>
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox>
+                                        <Label text="Powiadomienia" styleClass="settings-label"/>
+                                        <Label text="Alerty o przekroczeniu budżetu" styleClass="settings-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <CheckBox selected="true"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                        <VBox spacing="20" HBox.hgrow="ALWAYS">
+
+                            <VBox styleClass="card" style="-fx-padding: 20;" spacing="15">
+                                <Label text="ZARZĄDZANIE DANYMI" styleClass="settings-section-title"/>
+
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox>
+                                        <Label text="Eksport Transakcji" styleClass="settings-label"/>
+                                        <Label text="Format CSV (Excel)" styleClass="settings-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Pobierz CSV" onAction="#handleExport" styleClass="icon-button"/>
+                                </HBox>
+
+                                <Separator style="-fx-opacity: 0.1;"/>
+
+                                <HBox alignment="CENTER_LEFT">
+                                    <VBox>
+                                        <Label text="Kopia Zapasowa" styleClass="settings-label"/>
+                                        <Label text="Pełny zrzut bazy danych (.db)" styleClass="settings-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Utwórz Backup" onAction="#handleBackup" styleClass="icon-button"/>
+                                </HBox>
+                            </VBox>
+
+                            <VBox styleClass="card" style="-fx-padding: 20; -fx-border-color: #8a3c3c; -fx-border-width: 1;">
+                                <HBox alignment="CENTER_LEFT" spacing="10">
+                                    <Label text="⚠" style="-fx-text-fill: #ff6b6b; -fx-font-size: 18px;"/>
+                                    <Label text="STREFA NIEBEZPIECZNA" styleClass="settings-section-title" style="-fx-text-fill: #ff6b6b; -fx-border-color: transparent;"/>
+                                </HBox>
+
+                                <HBox alignment="CENTER_LEFT" style="-fx-padding: 10 0 0 0;">
+                                    <VBox>
+                                        <Label text="Reset Fabryczny" styleClass="settings-label"/>
+                                        <Label text="Usuwa trwale wszystkie dane" styleClass="settings-value"/>
+                                    </VBox>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="RESETUJ SYSTEM" onAction="#handleClearDatabase" styleClass="button-action" style="-fx-background-color: #8a3c3c;"/>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+
+                    </HBox>
                 </VBox>
 
             </StackPane>

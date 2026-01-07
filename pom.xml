@@ -7,45 +7,28 @@
     <groupId>com.budget</groupId>
     <artifactId>life-os-parent</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <packaging>pom</packaging> <modules>
-    <module>lifeos-core</module>
-    <module>lifeos-data</module>
-    <module>lifeos-ui</module>
-</modules>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>lifeos-core</module>
+        <module>lifeos-data</module>
+        <module>lifeos-ui</module>
+    </modules>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <javafx.version>17.0.2</javafx.version> </properties>
+        <javafx.version>21</javafx.version>
+        <lombok.version>1.18.30</lombok.version>
+    </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.budget</groupId>
-                <artifactId>lifeos-core</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>com.budget</groupId>
-                <artifactId>lifeos-data</artifactId>
-                <version>1.0-SNAPSHOT</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-controls</artifactId>
-                <version>${javafx.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.openjfx</groupId>
-                <artifactId>javafx-fxml</artifactId>
-                <version>${javafx.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>2.2.224</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 </project>

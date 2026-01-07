@@ -40,4 +40,22 @@ public class DataExporter {
             }
         }
     }
+    public void exportHtmlReport(String htmlContent, String defaultFileName, Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Zapisz Raport Finansowy");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Pliki HTML (*.html)", "*.html"));
+        fileChooser.setInitialFileName(defaultFileName);
+
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file != null) {
+            try (PrintWriter writer = new PrintWriter(file, "UTF-8")) {
+                writer.write(htmlContent);
+                // Opcjonalnie: Spróbuj otworzyć plik w domyślnej przeglądarce
+                java.awt.Desktop.getDesktop().browse(file.toURI());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
