@@ -2,6 +2,7 @@ package com.budget.controller;
 
 import com.budget.controller.modules.*; // Importuje wszystkie kontrolery modułów
 import com.budget.infrastructure.EventBus;
+import com.budget.infrastructure.events.RequestCommandPaletteEvent;
 import com.budget.model.Command;
 import com.budget.modules.finance.events.TransactionAddedEvent;
 import com.budget.modules.goals.events.GoalAddedEvent;
@@ -72,6 +73,13 @@ public class DashboardController {
             kokpitViewController.refresh(); // Kokpit musi zaktualizować licznik zadań
             calendarViewController.refreshCalendar();
         }));
+        EventBus.subscribe(RequestCommandPaletteEvent.class, e -> {
+            Platform.runLater(() -> {
+                // Kod otwierający paletę, który już tam masz (np. toggleCommandPalette())
+                commandPaletteOverlay.setVisible(true);
+                commandInput.requestFocus();
+            });
+        });
 
         EventBus.subscribe(GoalAddedEvent.class, e -> Platform.runLater(() -> goalViewController.refreshGoals()));
 

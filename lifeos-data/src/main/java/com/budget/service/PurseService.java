@@ -1,27 +1,73 @@
-package com.budget.service; // ZMIANA PAKIETU
+package com.budget.service;
 
 import com.budget.dao.PurseDAO;
+import com.budget.db.DatabaseService;
 import com.budget.modules.finance.domain.Purse;
-import com.budget.modules.finance.domain.PurseType;
+
+import java.sql.Connection;
+import java.sql.SQLException;
 
 public class PurseService {
+
     private final PurseDAO purseDAO = new PurseDAO();
 
-    // Główna logika transferu
+    /**
+     * Bezpieczny transfer środków między portfelami (Atomic Transaction).
+     */
     public void transferFunds(int fromId, int toId, double amount, String reason) throws Exception {
-        Purse from = getPurseById(fromId); // Uproszczenie: DAO powinno mieć metodę getById
-        // ... (reszta logiki walidacji, którą pisałeś wcześniej)
+        if (amount <= 0) throw new IllegalArgumentException("Kwota musi być dodatnia");
 
-        // Na potrzeby startu wystarczy prosta metoda,
-        // ale skoro używamy DAO bezpośrednio w kontrolerze,
-        // ta klasa może być na razie pusta lub służyć do specjalnych operacji.
-    }
+        // Otwieramy połączenie, ale NIE zamykamy go w try-with-resources od razu,
+        // musimy mieć kontrolę nad commit/rollback.
+        Connection conn = null;
 
-    // Pomocnicza metoda (jeśli DAO jej nie ma, trzeba dodać do PurseDAO)
-    private Purse getPurseById(int id) {
-        return purseDAO.getAllPurses().stream()
-                .filter(p -> p.getId() == id)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Purse not found: " + id));
+        try {
+            conn = DatabaseService.connect();
+            conn.setAutoCommit(false); // START TRANSAKCJI
+
+            // 1. Pobierz stan portfeli
+            Purse fromPurse = purseDAO.getPurseById(conn, fromId);
+            Purse toPurse = purseDAO.getPurseById(conn, toId);
+
+            if (fromPurse == null || toPurse == null) throw new Exception("Nie znaleziono portfela.");
+
+            // 2. Walidacja biznesowa
+            if (fromPurse.getAllocatedAmount() < amount) {
+                throw new Exception("Niewystarczające środki w portfelu źródłowym: " + fromPurse.getName());
+            }
+            if (fromPurse.isLocked() && !"BREAK_GLASS".equals(reason)) {
+                throw new Exception("Portfel źródłowy jest ZABLOKOWANY. Wymagana procedura awaryjna.");
+            }
+
+            // 3. Obliczenia
+            double newFromAmount = fromPurse.getAllocatedAmount() - amount;
+            double newToAmount = toPurse.getAllocatedAmount() + amount;
+
+            // 4. Zapis zmian (Wszystko na tym samym conn!)
+            purseDAO.updatePurseAllocation(conn, fromId, newFromAmount);
+            purseDAO.updatePurseAllocation(conn, toId, newToAmount);
+
+            // 5. Logowanie operacji
+            purseDAO.logAudit(conn, fromId, "TRANSFER_OUT", amount, "Do: " + toPurse.getName() + " | " + reason);
+            purseDAO.logAudit(conn, toId, "TRANSFER_IN", amount, "Od: " + fromPurse.getName() + " | " + reason);
+
+            conn.commit(); // ZATWIERDZENIE ZMIAN
+            System.out.println("✅ Transfer zakończony sukcesem.");
+
+        } catch (Exception e) {
+            if (conn != null) {
+                try {
+                    conn.rollback(); // COFNIĘCIE ZMIAN W RAZIE BŁĘDU
+                    System.err.println("⚠️ Transakcja wycofana: " + e.getMessage());
+                } catch (SQLException rollbackEx) {
+                    rollbackEx.printStackTrace();
+                }
+            }
+            throw e; // Rzuć wyjątek dalej, żeby UI wyświetliło błąd
+        } finally {
+            if (conn != null) {
+                try { conn.close(); } catch (SQLException e) { e.printStackTrace(); }
+            }
+        }
     }
 }

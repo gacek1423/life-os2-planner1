@@ -57,6 +57,65 @@ public class TransactionDAO {
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
     }
+    // 1. Obliczanie salda (Przychody - Wydatki) bezpośrednio w SQL
+    public double getCurrentBalance() {
+        String sql = """
+            SELECT 
+                COALESCE(SUM(CASE WHEN type = 'PRZYCHÓD' THEN amount ELSE 0 END), 0) - 
+                COALESCE(SUM(CASE WHEN type = 'WYDATEK' THEN amount ELSE 0 END), 0) 
+            as balance 
+            FROM transactions
+        """;
+
+        try (java.sql.Connection conn = DatabaseService.connect();
+             java.sql.Statement stmt = conn.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+
+            if (rs.next()) {
+                return rs.getDouble("balance");
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return 0.0;
+    }
+    public void delete(int transactionId) {
+        String sql = "DELETE FROM transactions WHERE id = ?";
+        try (Connection conn = DatabaseService.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, transactionId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Błąd usuwania transakcji: " + transactionId, e);
+        }
+    }
+
+    // 2. Pobieranie ostatnich N transakcji (dla Kokpitu)
+    public List<Transaction> getRecentTransactions(int limit) {
+        List<Transaction> list = new ArrayList<>();
+        String sql = "SELECT * FROM transactions ORDER BY date DESC LIMIT ?";
+
+        try (java.sql.Connection conn = DatabaseService.connect();
+             java.sql.PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, limit);
+
+            java.sql.ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                list.add(new Transaction(
+                        rs.getInt("id"),
+                        rs.getString("type"),
+                        rs.getString("category"),
+                        rs.getDouble("amount"),
+                        rs.getDate("date").toLocalDate(),
+                        rs.getString("description")
+                ));
+            }
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     // Metoda dla raportów i eksportu (pobiera wszystko)
     public List<Transaction> getAllTransactions() {

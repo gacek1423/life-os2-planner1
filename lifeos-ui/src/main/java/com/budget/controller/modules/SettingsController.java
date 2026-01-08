@@ -2,7 +2,6 @@ package com.budget.controller.modules;
 
 import com.budget.dao.TransactionDAO;
 import com.budget.infrastructure.AsyncRunner;
-import com.budget.db.Database;
 import com.budget.infrastructure.EventBus;
 import com.budget.model.Transaction;
 import com.budget.modules.finance.events.TransactionAddedEvent;
@@ -13,6 +12,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+
+import java.time.LocalDate;
+import com.budget.db.DatabaseService;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -132,7 +134,7 @@ public class SettingsController {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             AsyncRunner.run(() -> {
-                try (Connection conn = Database.getConnection();
+                try (Connection conn = DatabaseService.connect();
                      Statement stmt = conn.createStatement()) {
 
                     // Usuwamy dane z tabel

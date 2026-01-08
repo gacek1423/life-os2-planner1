@@ -29,7 +29,7 @@ public class GoalController {
         // Logika dodawania celu...
         // Goal g = new Goal(...);
         // goalDAO.addGoal(g);
-        EventBus.publish(new GoalAddedEvent(null)); // null dla uproszczenia
+        EventBus.publish(new GoalAddedEvent()); // null dla uproszczenia
         refreshGoals();
     }
 

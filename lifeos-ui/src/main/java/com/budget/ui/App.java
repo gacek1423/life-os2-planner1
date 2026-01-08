@@ -38,6 +38,7 @@ public class App extends Application {
                 // Symulacja kroków ładowania
                 Thread.sleep(500);
                 splashController.updateProgress("Łączenie z bazą danych...", 0.2);
+                com.budget.db.DatabaseService.initDatabase();
 
                 Thread.sleep(600);
                 splashController.updateProgress("Wczytywanie modułu Finanse...", 0.4);
