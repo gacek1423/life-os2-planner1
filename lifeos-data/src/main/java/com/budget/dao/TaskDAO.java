@@ -1,82 +1,102 @@
 package com.budget.dao;
 
-import com.budget.db.DatabaseService; // ZMIANA: Używamy poprawnego serwisu
+import com.budget.db.DatabaseService;
+import com.budget.model.Priority;
 import com.budget.model.Task;
+import com.budget.model.TaskStatus;
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskDAO {
 
-    // Usunięto metodę createTable(), ponieważ DatabaseService.initDatabase() już to robi.
-
     public List<Task> getAllTasks() {
-        List<Task> tasks = new ArrayList<>();
+        List<Task> list = new ArrayList<>();
         String sql = "SELECT * FROM tasks ORDER BY is_done ASC, due_date ASC";
 
-        try (Connection conn = DatabaseService.connect(); // ZMIANA
+        try (Connection conn = DatabaseService.connect();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) { tasks.add(mapRowToTask(rs)); }
-        } catch (SQLException e) { e.printStackTrace(); }
-        return tasks;
-    }
-
-    public void addTask(Task task) {
-        String sql = "INSERT INTO tasks (title, is_done, due_date, priority) VALUES (?, ?, ?, ?)";
-        try (Connection conn = DatabaseService.connect(); // ZMIANA
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, task.getTitle());
-            pstmt.setBoolean(2, task.isDone());
-            pstmt.setDate(3, task.getDueDate() != null ? Date.valueOf(task.getDueDate()) : Date.valueOf(LocalDate.now()));
-            pstmt.setString(4, task.getPriority());
-            pstmt.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    public void updateTask(Task task) {
-        String sql = "UPDATE tasks SET title = ?, is_done = ?, due_date = ?, priority = ? WHERE id = ?";
-        try (Connection conn = DatabaseService.connect(); // ZMIANA
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, task.getTitle());
-            pstmt.setBoolean(2, task.isDone());
-            pstmt.setDate(3, task.getDueDate() != null ? Date.valueOf(task.getDueDate()) : null);
-            pstmt.setString(4, task.getPriority());
-            pstmt.setInt(5, task.getId());
-            pstmt.executeUpdate();
-        } catch (SQLException e) { e.printStackTrace(); }
-    }
-
-    // ... (metody delete i mapRowToTask bez zmian, tylko pamiętaj o imporcie DatabaseService)
-    private Task mapRowToTask(ResultSet rs) throws SQLException {
-        Date sqlDate = rs.getDate("due_date");
-        return new Task(rs.getInt("id"), rs.getString("title"), rs.getBoolean("is_done"),
-                sqlDate != null ? sqlDate.toLocalDate() : null, rs.getString("priority"));
-    }
-    // Wklej to wewnątrz klasy TaskDAO
-
-    public java.util.List<Task> getUrgentTasks() {
-        java.util.List<Task> tasks = new java.util.ArrayList<>();
-        // Pobiera 5 pilnych zadań (niewykonane, posortowane po dacie)
-        String sql = "SELECT * FROM tasks WHERE is_done = false ORDER BY due_date ASC LIMIT 5";
-
-        try (java.sql.Connection conn = DatabaseService.connect();
-             java.sql.Statement stmt = conn.createStatement();
-             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                java.sql.Date sqlDate = rs.getDate("due_date");
-                tasks.add(new Task(
-                        rs.getInt("id"),
-                        rs.getString("title"),
-                        rs.getBoolean("is_done"),
-                        sqlDate != null ? sqlDate.toLocalDate() : null,
-                        rs.getString("priority")
-                ));
+                list.add(mapRow(rs));
             }
-        } catch (java.sql.SQLException e) { e.printStackTrace(); }
-        return tasks;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    // --- PRZYWRÓCONA METODA (Dla Kokpitu) ---
+    public List<Task> getUrgentTasks() {
+        List<Task> list = new ArrayList<>();
+        // Pobieramy 5 zadań, które nie są wykonane, sortując od najpilniejszych
+        String sql = "SELECT * FROM tasks WHERE is_done = false ORDER BY due_date ASC LIMIT 5";
+
+        try (Connection conn = DatabaseService.connect();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                list.add(mapRow(rs));
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return list;
+    }
+
+    public void addTask(Task t) {
+        String sql = "INSERT INTO tasks (title, is_done, due_date, priority) VALUES (?, ?, ?, ?)";
+        try (Connection conn = DatabaseService.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, t.getTitle());
+            pstmt.setBoolean(2, t.getStatus() == TaskStatus.COMPLETED);
+
+            if (t.getDueDate() != null) {
+                pstmt.setDate(3, Date.valueOf(t.getDueDate()));
+            } else {
+                pstmt.setDate(3, null);
+            }
+
+            pstmt.setString(4, t.getPriority() != null ? t.getPriority().name() : "MEDIUM");
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void toggleTaskStatus(Long id, boolean isDone) {
+        String sql = "UPDATE tasks SET is_done = ? WHERE id = ?";
+        try (Connection conn = DatabaseService.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBoolean(1, isDone);
+            pstmt.setLong(2, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void deleteTask(Long id) {
+        String sql = "DELETE FROM tasks WHERE id = ?";
+        try (Connection conn = DatabaseService.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setLong(1, id);
+            pstmt.executeUpdate();
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    private Task mapRow(ResultSet rs) throws SQLException {
+        Task t = new Task();
+        t.setId(rs.getLong("id"));
+        t.setTitle(rs.getString("title"));
+
+        boolean done = rs.getBoolean("is_done");
+        t.setStatus(done ? TaskStatus.COMPLETED : TaskStatus.PENDING);
+
+        java.sql.Date d = rs.getDate("due_date");
+        if (d != null) t.setDueDate(d.toLocalDate());
+
+        String p = rs.getString("priority");
+        if (p != null) t.setPriority(Priority.valueOf(p));
+        else t.setPriority(Priority.MEDIUM);
+
+        return t;
     }
 }

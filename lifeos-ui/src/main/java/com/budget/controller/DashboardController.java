@@ -1,141 +1,237 @@
 package com.budget.controller;
 
-import com.budget.controller.modules.*; // Importuje wszystkie kontrolery modułów
-import com.budget.infrastructure.EventBus;
-import com.budget.infrastructure.events.RequestCommandPaletteEvent;
-import com.budget.model.Command;
-import com.budget.modules.finance.events.TransactionAddedEvent;
-import com.budget.modules.goals.events.GoalAddedEvent;
-import com.budget.modules.tasks.events.TaskUpdatedEvent;
-import javafx.application.Platform;
+import com.budget.model.Dashboard;
+import com.budget.model.HabitCategory; // <--- NAPRAWIONO: Dodano brakujący import
+import com.budget.modules.dashboard.DashboardService;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
 import javafx.geometry.Pos;
-import javafx.scene.control.ContentDisplay;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 public class DashboardController {
 
-    // --- NAV UI ---
-    @FXML private Button btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia, btnKalendarz;
-    @FXML private StackPane rootPane;
-    @FXML private VBox sidebar, logoContainer;
+    @FXML private Label dateLabel;
+    @FXML private Label totalBalanceLabel;
+    @FXML private Label monthlyIncomeLabel;
+    @FXML private Label monthlyExpensesLabel;
+    @FXML private Label savingsLabel;
+    @FXML private Label savingsRateLabel;
 
-    // --- WSTRZYKNIĘTE MODUŁY (Widoki + Kontrolery) ---
-    // Nazwa zmiennej musi brzmieć: fx:id + "Controller"
+    @FXML private Label totalGoalsLabel;
+    @FXML private Label completedGoalsLabel;
+    @FXML private Label goalProgressLabel;
 
-    @FXML private Parent kokpitView;
-    @FXML private KokpitController kokpitViewController;
+    @FXML private Label totalTasksLabel;
+    @FXML private Label completedTasksTodayLabel;
+    @FXML private Label pendingTasksLabel;
+    @FXML private Label overdueTasksLabel;
 
-    @FXML private Parent financeView;
-    @FXML private FinanceController financeViewController;
+    @FXML private Label totalHabitsLabel;
+    @FXML private Label habitsCompletedTodayLabel;
+    @FXML private Label habitCompletionRateLabel;
+    @FXML private Label longestStreakLabel;
 
-    @FXML private Parent taskView;
-    @FXML private TaskController taskViewController;
+    @FXML private ListView<String> todayTasksList;
+    @FXML private ListView<String> todayHabitsList;
+    @FXML private ListView<String> notificationsList;
 
-    @FXML private Parent goalView;
-    @FXML private GoalController goalViewController;
+    @FXML private VBox financialChartContainer;
+    @FXML private VBox habitChartContainer;
 
-    @FXML private Parent reportView;
-    @FXML private ReportController reportViewController;
+    private DashboardService dashboardService;
 
-    @FXML private Parent calendarView;
-    @FXML private CalendarController calendarViewController;
-
-    @FXML private Parent settingsView;
-    @FXML private SettingsController settingsViewController;
-
-    // --- COMMAND PALETTE ---
-    @FXML private StackPane commandPaletteOverlay;
-    @FXML private TextField commandInput;
-    @FXML private ListView<Command> commandList;
-    private final javafx.collections.ObservableList<Command> allCommands = javafx.collections.FXCollections.observableArrayList();
-    private boolean isSidebarCollapsed = false;
-
-    @FXML
-    public void initialize() {
-        // Event Bus - Centralna Magistrala Danych
-        // Gdy coś się zmieni, informujemy odpowiednie kontrolery, by się odświeżyły
-
-        EventBus.subscribe(TransactionAddedEvent.class, e -> Platform.runLater(() -> {
-            financeViewController.refreshFinances();
-            kokpitViewController.refresh(); // Kokpit musi zaktualizować saldo
-            reportViewController.refreshReports();
-            calendarViewController.refreshCalendar();
-        }));
-
-        EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> {
-            taskViewController.refreshTasks();
-            kokpitViewController.refresh(); // Kokpit musi zaktualizować licznik zadań
-            calendarViewController.refreshCalendar();
-        }));
-        EventBus.subscribe(RequestCommandPaletteEvent.class, e -> {
-            Platform.runLater(() -> {
-                // Kod otwierający paletę, który już tam masz (np. toggleCommandPalette())
-                commandPaletteOverlay.setVisible(true);
-                commandInput.requestFocus();
-            });
-        });
-
-        EventBus.subscribe(GoalAddedEvent.class, e -> Platform.runLater(() -> goalViewController.refreshGoals()));
-
-        setupCommandPalette();
-        showKokpit(); // Domyślny widok
+    public void setDashboardService(DashboardService dashboardService) {
+        this.dashboardService = dashboardService;
+        loadDashboardData();
     }
 
-    // --- NAWIGACJA ---
-    @FXML public void showKokpit() { switchView(kokpitView, btnKokpit); kokpitViewController.refresh(); }
-    @FXML public void showFinanse() { switchView(financeView, btnFinanse); financeViewController.refreshFinances(); }
-    @FXML public void showZadania() { switchView(taskView, btnZadania); taskViewController.refreshTasks(); }
-    @FXML public void showCele() { switchView(goalView, btnCele); goalViewController.refreshGoals(); }
-    @FXML public void showRaporty() { switchView(reportView, btnRaporty); reportViewController.refreshReports(); }
-    @FXML public void showKalendarz() { switchView(calendarView, btnKalendarz); calendarViewController.refreshCalendar(); }
-    @FXML public void showUstawienia() { switchView(settingsView, btnUstawienia); }
+    private void loadDashboardData() {
+        if (dashboardService == null) return;
 
-    private void switchView(Parent view, Button activeButton) {
-        // Ukrywamy wszystko
-        List<Parent> views = Arrays.asList(kokpitView, financeView, taskView, goalView, reportView, calendarView, settingsView);
-        views.forEach(v -> v.setVisible(false));
+        Dashboard dashboard = dashboardService.getDashboard();
 
-        List<Button> btns = Arrays.asList(btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia, btnKalendarz);
-        btns.forEach(b -> b.getStyleClass().remove("sidebar-button-active"));
+        // Ustaw datę
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+        if (dateLabel != null) dateLabel.setText("Dashboard - " + LocalDate.now().format(formatter));
 
-        // Pokazujemy wybrane
-        view.setVisible(true);
-        activeButton.getStyleClass().add("sidebar-button-active");
+        // Dane finansowe
+        updateFinancialSection(dashboard);
+
+        // Cele
+        updateGoalsSection(dashboard);
+
+        // Zadania
+        updateTasksSection(dashboard);
+
+        // Nawyki
+        updateHabitsSection(dashboard);
+
+        // Listy dzienne
+        updateDailyLists(dashboard);
+
+        // Powiadomienia
+        updateNotifications(dashboard);
+
+        // Wykresy
+        createFinancialChart(dashboard);
+        createHabitChart(dashboard);
     }
 
-    @FXML
-    private void toggleSidebar() {
-        if (isSidebarCollapsed) {
-            sidebar.setPrefWidth(240);
-            logoContainer.setVisible(true);
-            sidebar.getChildren().forEach(n -> { if(n instanceof Button b && !"☰".equals(b.getText())) { b.setContentDisplay(ContentDisplay.LEFT); b.setAlignment(Pos.CENTER_LEFT); }});
-            isSidebarCollapsed = false;
-        } else {
-            sidebar.setPrefWidth(60);
-            logoContainer.setVisible(false);
-            sidebar.getChildren().forEach(n -> { if(n instanceof Button b && !"☰".equals(b.getText())) { b.setContentDisplay(ContentDisplay.TEXT_ONLY); b.setAlignment(Pos.CENTER); }});
-            isSidebarCollapsed = true;
+    private void updateFinancialSection(Dashboard dashboard) {
+        if (totalBalanceLabel != null) totalBalanceLabel.setText(formatCurrency(dashboard.getTotalBalance()));
+        if (monthlyIncomeLabel != null) monthlyIncomeLabel.setText(formatCurrency(dashboard.getMonthlyIncome()));
+        if (monthlyExpensesLabel != null) monthlyExpensesLabel.setText(formatCurrency(dashboard.getMonthlyExpenses()));
+        if (savingsLabel != null) {
+            savingsLabel.setText(formatCurrency(dashboard.getSavingsThisMonth()));
+            // Zmień kolor oszczędności
+            if (dashboard.getSavingsThisMonth().compareTo(BigDecimal.ZERO) >= 0) {
+                savingsLabel.setTextFill(Color.GREEN);
+            } else {
+                savingsLabel.setTextFill(Color.RED);
+            }
+        }
+        if (savingsRateLabel != null) savingsRateLabel.setText(formatPercentage(dashboard.getSavingsRate()));
+    }
+
+    private void updateGoalsSection(Dashboard dashboard) {
+        if (totalGoalsLabel != null) totalGoalsLabel.setText(String.valueOf(dashboard.getTotalGoals()));
+        if (completedGoalsLabel != null) completedGoalsLabel.setText(String.valueOf(dashboard.getCompletedGoals()));
+        if (goalProgressLabel != null) goalProgressLabel.setText(String.format("%.1f%%", dashboard.getGoalCompletionPercentage()));
+    }
+
+    private void updateTasksSection(Dashboard dashboard) {
+        if (totalTasksLabel != null) totalTasksLabel.setText(String.valueOf(dashboard.getTotalTasks()));
+        if (completedTasksTodayLabel != null) completedTasksTodayLabel.setText(String.valueOf(dashboard.getCompletedTasksToday()));
+        if (pendingTasksLabel != null) pendingTasksLabel.setText(String.valueOf(dashboard.getPendingTasks()));
+        if (overdueTasksLabel != null) {
+            overdueTasksLabel.setText(String.valueOf(dashboard.getOverdueTasks()));
+            if (dashboard.getOverdueTasks() > 0) {
+                overdueTasksLabel.setTextFill(Color.RED);
+            }
         }
     }
 
-    private void setupCommandPalette() {
-        // ... (Twój kod palety, używający metod powyżej, np. this::showFinanse) ...
-        // Możesz tu też dodać komendy globalne
-        allCommands.add(new Command("Zamknij", "Wyjście", () -> Platform.exit()));
-
-        // ... obsługa klawiszy (CTRL+K) ...
+    private void updateHabitsSection(Dashboard dashboard) {
+        if (totalHabitsLabel != null) totalHabitsLabel.setText(String.valueOf(dashboard.getTotalHabits()));
+        if (habitsCompletedTodayLabel != null) habitsCompletedTodayLabel.setText(String.valueOf(dashboard.getHabitsCompletedToday()));
+        if (habitCompletionRateLabel != null) habitCompletionRateLabel.setText(String.format("%.1f%%", dashboard.getAverageHabitCompletionRate()));
+        if (longestStreakLabel != null) longestStreakLabel.setText(String.valueOf(dashboard.getCurrentLongestStreak()));
     }
 
-    // Metody pomocnicze dla Palety (żeby nie pisać logiki 2 razy)
-    private void toggleCommandPalette() {
-        commandPaletteOverlay.setVisible(!commandPaletteOverlay.isVisible());
-        if(commandPaletteOverlay.isVisible()) { commandInput.clear(); commandInput.requestFocus(); }
+    private void updateDailyLists(Dashboard dashboard) {
+        // Dzisiejsze zadania
+        if (todayTasksList != null) {
+            todayTasksList.getItems().clear();
+            dashboard.getTodayTasks().forEach(task -> {
+                String priorityName = task.getPriority() != null ? task.getPriority().name() : "NORMAL";
+                String taskText = String.format("%s - %s", task.getTitle(), priorityName);
+                todayTasksList.getItems().add(taskText);
+            });
+        }
+
+        // Dzisiejsze nawyki
+        if (todayHabitsList != null) {
+            todayHabitsList.getItems().clear();
+            dashboard.getTodayHabits().forEach(habit -> {
+                todayHabitsList.getItems().add(habit.getName());
+            });
+        }
     }
-    private void executeSelectedCommand() { /* ... */ }
+
+    private void updateNotifications(Dashboard dashboard) {
+        if (notificationsList != null) {
+            notificationsList.getItems().clear();
+
+            List<String> notifications = dashboardService.getNotifications();
+            notifications.forEach(notificationsList.getItems()::add);
+
+            // Dodaj przypomnienia
+            List<String> reminders = dashboardService.getReminders();
+            reminders.forEach(notificationsList.getItems()::add);
+        }
+    }
+
+    private void createFinancialChart(Dashboard dashboard) {
+        if (financialChartContainer == null) return;
+
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Finanse Miesięczne");
+
+        series.getData().add(new XYChart.Data<>("Przychody", dashboard.getMonthlyIncome().doubleValue()));
+        series.getData().add(new XYChart.Data<>("Wydatki", dashboard.getMonthlyExpenses().doubleValue()));
+        series.getData().add(new XYChart.Data<>("Oszczędności", dashboard.getSavingsThisMonth().doubleValue()));
+
+        barChart.getData().add(series);
+        barChart.setLegendVisible(false);
+
+        financialChartContainer.getChildren().clear();
+        financialChartContainer.getChildren().add(barChart);
+    }
+
+    private void createHabitChart(Dashboard dashboard) {
+        if (habitChartContainer == null) return;
+
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("% Realizacji");
+
+        BarChart<String, Number> barChart = new BarChart<>(xAxis, yAxis);
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Realizacja Nawyków");
+
+        Map<HabitCategory, Double> completionByCategory = dashboardService.getHabitCompletionByCategory();
+        for (Map.Entry<HabitCategory, Double> entry : completionByCategory.entrySet()) {
+            series.getData().add(new XYChart.Data<>(
+                    entry.getKey().name(), // Używamy .name() zamiast .getDisplayName(), jeśli to Enum
+                    entry.getValue()
+            ));
+        }
+
+        barChart.getData().add(series);
+        barChart.setLegendVisible(false);
+
+        habitChartContainer.getChildren().clear();
+        habitChartContainer.getChildren().add(barChart);
+    }
+
+    private String formatCurrency(BigDecimal amount) {
+        if (amount == null) return "0.00 zł";
+        return String.format("%.2f zł", amount.doubleValue());
+    }
+
+    private String formatPercentage(BigDecimal percentage) {
+        if (percentage == null) return "0.0%";
+        return String.format("%.1f%%", percentage.doubleValue());
+    }
+
+    @FXML
+    private void refreshDashboard() {
+        loadDashboardData();
+    }
+
+    @FXML
+    private void showWeeklyReport() {
+        if (dashboardService == null) return;
+        Map<String, Object> weeklyProgress = dashboardService.getWeeklyProgress();
+        System.out.println("Raport tygodniowy: " + weeklyProgress);
+    }
 }

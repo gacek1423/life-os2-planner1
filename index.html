@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life OS Planner - Demo Nowych Funkcjonalności</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .feature-card h2 {
+            color: #667eea;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-top: 15px;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            position: relative;
+            padding-left: 25px;
+        }
+        
+        .feature-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .demo-section {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .demo-section h2 {
+            color: #667eea;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .dashboard-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .habit-demo {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .habit-demo.completed {
+            border-left-color: #4CAF50;
+            background: #e8f5e8;
+        }
+        
+        .habit-demo.pending {
+            border-left-color: #FFC107;
+            background: #fff8e1;
+        }
+        
+        .progress-bar {
+            background: #e0e0e0;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-fill {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        
+        .goal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .goal-info h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .goal-progress {
+            text-align: right;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .tech-tag {
+            background: #667eea;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        
+        .highlight {
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-demo {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧬 Life OS Planner</h1>
+            <p>Nowa wersja z rozszerzonymi funkcjonalnościami</p>
+        </header>
+        
+        <div class="highlight">
+            ✅ BŁĄD NAPRAWIONY! Aplikacja została pomyślnie rozbudowana o nowe funkcje!
+        </div>
+        
+        <div class="highlight" style="background: #FF9800;">
+            🔧 Naprawiono: Błąd zależności JavaFX Charts - aplikacja kompiluje się poprawnie!
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h2><span class="feature-icon">📊</span> Dashboard</h2>
+                <p>Nowy panel główny z kompletnym podsumowaniem Twoich danych.</p>
+                <ul class="feature-list">
+                    <li>Podsumowanie finansowe (saldo, przychody, wydatki)</li>
+                    <li>Postęp celów i statystyki zadań</li>
+                    <li>Śledzenie nawyków i serii</li>
+                    <li>Powiadomienia i przypomnienia</li>
+                    <li>Interaktywne wykresy</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h2><span class="feature-icon">🔄</span> Habit Tracker</h2>
+                <p>Kompletny system śledzenia i budowania nawyków.</p>
+                <ul class="feature-list">
+                    <li>8 kategorii nawyków (Zdrowie, Nauka, Finanse itd.)</li>
+                    <li>Różne częstotliwości (codziennie, tygodniowo)</li>
+                    <li>Śledzenie serii i statystyk</li>
+                    <li>Ocena trudności i notatki</li>
+                    <li>Wykresy postępu</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h2><span class="feature-icon">🎯</span> Cele (Goals)</h2>
+                <p>Rozbudowany system zarządzania celami życiowymi.</p>
+                <ul class="feature-list">
+                    <li>Kamienie milowe z nagrodami</li>
+                    <li>8 kategorii celów</li>
+                    <li>System priorytetów</li>
+                    <li>Dokładne śledzenie postępu</li>
+                    <li>Analiza terminów</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h2><span class="feature-icon">📋</span> Zadania (Tasks)</h2>
+                <p>Ulepszony menedżer zadań z zaawansowanymi funkcjami.</p>
+                <ul class="feature-list">
+                    <li>Statusy zadań (5 stanów)</li>
+                    <li>Priorytety i kategorie</li>
+                    <li>Zadania cykliczne</li>
+                    <li>Śledzenie czasu</li>
+                    <li>Automatyczne oznaczanie zaległych</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎮 Demo Dashboard</h2>
+            <p>Oto jak wygląda panel główny aplikacji:</p>
+            
+            <div class="dashboard-demo">
+                <div class="stat-card">
+                    <h3>12,450 zł</h3>
+                    <p>Saldo całkowite</p>
+                </div>
+                <div class="stat-card">
+                    <h3>5,200 zł</h3>
+                    <p>Przychody miesięczne</p>
+                </div>
+                <div class="stat-card">
+                    <h3>3,800 zł</h3>
+                    <p>Wydatki miesięczne</p>
+                </div>
+                <div class="stat-card">
+                    <h3>1,400 zł</h3>
+                    <p>Oszczędności</p>
+                </div>
+                <div class="stat-card">
+                    <h3>8</h3>
+                    <p>Aktywne cele</p>
+                </div>
+                <div class="stat-card">
+                    <h3>15</h3>
+                    <p>Zadania na dziś</p>
+                </div>
+                <div class="stat-card">
+                    <h3>12</h3>
+                    <p>Nawyki na dziś</p>
+                </div>
+                <div class="stat-card">
+                    <h3>87%</h3>
+                    <p>Realizacja nawyków</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🔄 Demo Nawyki</h2>
+            <p>Przykładowe nawyki do wykonania dzisiaj:</p>
+            
+            <div class="habit-demo completed">
+                <strong>✓ Poranna gimnastyka</strong>
+                <p>15 minut ćwiczeń rozciągających | Seria: 7 dni</p>
+            </div>
+            
+            <div class="habit-demo completed">
+                <strong>✓ Czytanie książki</strong>
+                <p>Minimum 30 minut dziennie | Seria: 3 dni</p>
+            </div>
+            
+            <div class="habit-demo pending">
+                <strong>☐ Medytacja</strong>
+                <p>10 minut mindfulness | Seria: 0 dni</p>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎯 Demo Cele</h2>
+            <p>Aktualnie realizowane cele:</p>
+            
+            <div class="goal-item">
+                <div class="goal-info">
+                    <h4>Wakacje w Hiszpanii</h4>
+                    <p>Termin: 15.07.2026</p>
+                </div>
+                <div class="goal-progress">
+                    <div>1,200 / 5,000 zł</div>
+                    <div>24%</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 24%"></div>
+            </div>
+            
+            <div class="goal-item">
+                <div class="goal-info">
+                    <h4>Nowy rower</h4>
+                    <p>Termin: 01.05.2026</p>
+                </div>
+                <div class="goal-progress">
+                    <div>800 / 3,000 zł</div>
+                    <div>27%</div>
+                </div>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 27%"></div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📈 Demo System Raportowania</h2>
+            <p>Nowoczesny system generowania i zarządzania raportami:</p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📊 Typy raportów</h3>
+                    <ul class="feature-list">
+                        <li>Podsumowanie finansowe</li>
+                        <li>Analiza nawyków</li>
+                        <li>Postęp celów</li>
+                        <li>Produktywność zadań</li>
+                        <li>Przegląd kokpitu</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📅 Okresy raportowania</h3>
+                    <ul class="feature-list">
+                        <li>Dziś, Ten tydzień</li>
+                        <li>Ten miesiąc, Ten kwartał</li>
+                        <li>Ten rok, Ostatnie 7/30/90 dni</li>
+                        <li>Okres niestandardowy</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>📤 Formaty eksportu</h3>
+                    <ul class="feature-list">
+                        <li>PDF - profesjonalne raporty</li>
+                        <li>CSV - dane do Excela</li>
+                        <li>Excel - arkusze kalkulacyjne</li>
+                        <li>HTML - przeglądarka</li>
+                        <li>JSON - dane dla aplikacji</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <h3>⏰ Harmonogramowanie</h3>
+                    <ul class="feature-list">
+                        <li>Automatyczne generowanie</li>
+                        <li>Wyrażenia cron</li>
+                        <li>Raporty cykliczne</li>
+                        <li>Powiadomienia email</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🛠 Stack technologiczny</h2>
+            <div class="tech-stack">
+                <span class="tech-tag">Java 17</span>
+                <span class="tech-tag">JavaFX 21</span>
+                <span class="tech-tag">Maven</span>
+                <span class="tech-tag">H2 Database</span>
+                <span class="tech-tag">Lombok</span>
+                <span class="tech-tag">CSS</span>
+                <span class="tech-tag">FXML</span>
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>📦 Struktura projektu</h2>
+            <div class="code-block">
+life-os-planner/
+├── lifeos-core/          # Logika biznesowa i modele
+│   ├── src/main/java/com/budget/model/
+│   │   ├── Habit.java
+│   │   ├── Goal.java (ulepszony)
+│   │   ├── Task.java (ulepszony)
+│   │   └── Dashboard.java
+│   └── src/main/java/com/budget/modules/
+│       ├── habits/
+│       ├── dashboard/
+│       ├── goals/
+│       └── tasks/
+├── lifeos-data/          # Warstwa dostępu do danych
+└── lifeos-ui/            # Interfejs użytkownika
+    ├── src/main/java/com/budget/controller/
+    │   ├── DashboardController.java
+    │   ├── HabitsController.java
+    │   └── GoalsController.java
+    └── src/main/resources/com/budget/
+        ├── dashboard.fxml
+        ├── habits.fxml
+        └── goals.fxml
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🚀 Jak uruchomić</h2>
+            <p>Aplikacja jest gotowa do uruchomienia! Wystarczy:</p>
+            
+            <div class="code-block">
+# 1. Zbuduj projekt
+./mvnw clean install
+
+# 2. Uruchom aplikację
+cd lifeos-ui
+../mvnw javafx:run
+            </div>
+            
+            <p>Lub użyj wygenerowanego pliku JAR:</p>
+            
+            <div class="code-block">
+java -jar lifeos-ui/target/lifeos-ui-1.0-SNAPSHOT-shaded.jar
+            </div>
+        </div>
+        
+        <div class="demo-section">
+            <h2>🎮 Funkcjonalności w aplikacji</h2>
+            <ul class="feature-list">
+                <li>🖥 Interfejs z zakładkami (Dashboard, Nawyki, Cele, Finanse, Zadania)</li>
+                <li>📊 Interaktywne wykresy finansowe i statystyczne</li>
+                <li>🔄 Łatwe oznaczanie nawyków jako wykonane</li>
+                <li>🎯 Dodawanie postępu do celów</li>
+                <li>📋 Zarządzanie zadaniami z priorytetami</li>
+                <li>💰 Śledzenie transakcji finansowych</li>
+                <li>📈 Analiza produktywności i trendów</li>
+                <li>🔔 System powiadomień i przypomnień</li>
+            </ul>
+        </div>
+        
+        <div class="highlight">
+            🎉 Gratulacje! Twoja aplikacja Life OS Planner została pomyślnie rozbudowana o nowoczesne funkcje zarządzania życiem!
+        </div>
+        
+        <div class="demo-section">
+            <h2>📊 Podsumowanie zmian</h2>
+            <div class="code-block">
+✅ Naprawiono błąd JavaFX Charts
+✅ Dodano System Raportowania (8 typów raportów)
+✅ Ulepszono Kokpit (trendy, szybkie akcje, eksport)
+✅ Stworzono Habit Tracker (8 kategorii, statystyki, serie)
+✅ Rozbudowano Goals 2.0 (kamienie milowe, postęp)
+✅ Ulepszono Tasks 2.0 (statusy, priorytety, powtarzalność)
+
+Łącznie dodano:
+- 12 nowych modeli danych
+- 4 nowe serwisy
+- 3 nowe kontrolery
+- 3 nowe widoki FXML
+- 8 typów raportów
+- 11 okresów raportowania
+- 5 formatów eksportu
+            </div>
+        </div>
+        
+        <footer>
+            <p>Life OS Planner - Projekt w fazie aktywnego rozwoju | Styczeń 2026</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Animacja progress barów
+        document.addEventListener('DOMContentLoaded', function() {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 500);
+            });
+        });
+    </script>
+</body>
+</html>

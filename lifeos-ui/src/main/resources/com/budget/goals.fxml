@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.text.*?>
+
+<SplitPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.GoalsController" dividerPositions="0.4">
+    <items>
+        <!-- Lewy panel - lista celów -->
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            
+            <Label text="Cele" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            
+            <TableView fx:id="goalsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="nameColumn" text="Nazwa" prefWidth="150"/>
+                    <TableColumn fx:id="categoryColumn" text="Kategoria" prefWidth="100"/>
+                    <TableColumn fx:id="targetAmountColumn" text="Cel" prefWidth="80"/>
+                    <TableColumn fx:id="currentAmountColumn" text="Aktualnie" prefWidth="80"/>
+                    <TableColumn fx:id="targetDateColumn" text="Termin" prefWidth="100"/>
+                    <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
+                    <TableColumn fx:id="priorityColumn" text="Priorytet" prefWidth="80"/>
+                </columns>
+            </TableView>
+            
+            <HBox spacing="10">
+                <Button text="Odśwież" onAction="#handleRefresh" HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+        
+        <!-- Prawy panel - szczegóły i formularz -->
+        <ScrollPane>
+            <content>
+                <VBox spacing="15" style="-fx-background-color: #f5f5f5;">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+                    
+                    <!-- Formularz -->
+                    <TitledPane text="Dodaj/Edytuj cel" expanded="true">
+                        <content>
+                            <GridPane hgap="10" vgap="10">
+                                <columnConstraints>
+                                    <ColumnConstraints percentWidth="30"/>
+                                    <ColumnConstraints percentWidth="70"/>
+                                </columnConstraints>
+                                
+                                <Label text="Nazwa:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Opis:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                <TextArea fx:id="descriptionField" prefRowCount="3" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Kwota docelowa:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                <TextField fx:id="targetAmountField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Kwota aktualna:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                <TextField fx:id="currentAmountField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Data docelowa:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                                <DatePicker fx:id="targetDatePicker" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Kategoria:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="categoryComboBox" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Priorytet:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="priorityComboBox" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                                
+                                <Label text="Status:" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+                                <ComboBox fx:id="statusComboBox" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+                            </GridPane>
+                        </content>
+                    </TitledPane>
+                    
+                    <!-- Przyciski akcji -->
+                    <HBox spacing="10">
+                        <Button text="Dodaj" onAction="#handleAddGoal" HBox.hgrow="ALWAYS" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                        <Button text="Zaktualizuj" onAction="#handleUpdateGoal" HBox.hgrow="ALWAYS" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                        <Button text="Usuń" onAction="#handleDeleteGoal" HBox.hgrow="ALWAYS" style="-fx-background-color: #F44336; -fx-text-fill: white;"/>
+                        <Button text="Dodaj postęp" onAction="#handleAddProgress" HBox.hgrow="ALWAYS" style="-fx-background-color: #FF9800; -fx-text-fill: white;"/>
+                    </HBox>
+                    
+                    <!-- Postęp celu -->
+                    <TitledPane text="Postęp celu" expanded="true">
+                        <content>
+                            <VBox spacing="15">
+                                <GridPane hgap="15" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="50"/>
+                                        <ColumnConstraints percentWidth="50"/>
+                                    </columnConstraints>
+                                    
+                                    <Label text="Postęc ogólny:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <ProgressBar fx:id="progressBar" prefWidth="200" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    
+                                    <Label text="Procentowo:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                                    <Label fx:id="progressLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                                    
+                                    <Label text="Pozostało dni:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                                    <Label fx:id="daysRemainingLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                                    
+                                    <Label text="Pozostała kwota:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                                    <Label fx:id="remainingAmountLabel" style="-fx-font-size: 16px; -fx-font-weight: bold;" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                                </GridPane>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+                    
+                    <!-- Kamienie milowe -->
+                    <TitledPane text="Kamienie milowe" expanded="true">
+                        <content>
+                            <VBox spacing="10">
+                                <ListView fx:id="milestonesList" prefHeight="120"/>
+                                <GridPane hgap="10" vgap="10">
+                                    <columnConstraints>
+                                        <ColumnConstraints percentWidth="40"/>
+                                        <ColumnConstraints percentWidth="35"/>
+                                        <ColumnConstraints percentWidth="25"/>
+                                    </columnConstraints>
+                                    
+                                    <TextField fx:id="milestoneNameField" promptText="Nazwa kamienia milowego" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                                    <TextField fx:id="milestoneAmountField" promptText="Kwota" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                                    <Button fx:id="addMilestoneButton" text="Dodaj" onAction="#handleAddMilestone" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+                                </GridPane>
+                            </VBox>
+                        </content>
+                    </TitledPane>
+                    
+                    <!-- Wykresy -->
+                    <HBox spacing="20">
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <Label text="Rozkład celów według statusu" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                            <PieChart fx:id="goalsPieChart"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </items>
+</SplitPane>

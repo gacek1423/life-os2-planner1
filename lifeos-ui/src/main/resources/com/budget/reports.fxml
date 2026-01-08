@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.*?>
+
+<SplitPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.budget.controller.ReportsController" dividerPositions="0.4">
+    <items>
+        <!-- Lewy panel - lista raportów i formularz -->
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            
+            <!-- Formularz generowania raportu -->
+            <TitledPane text="Generuj raport" expanded="true">
+                <content>
+                    <VBox spacing="10">
+                        <GridPane hgap="10" vgap="10">
+                            <columnConstraints>
+                                <ColumnConstraints percentWidth="30"/>
+                                <ColumnConstraints percentWidth="70"/>
+                            </columnConstraints>
+                            
+                            <Label text="Typ raportu:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="reportTypeComboBox" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Okres:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="periodComboBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Data początkowa:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="startDatePicker" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Data końcowa:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                            <DatePicker fx:id="endDatePicker" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Format:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                            <ComboBox fx:id="formatComboBox" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Tytuł:" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                            <TextField fx:id="reportTitleField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+                            
+                            <Label text="Opis:" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                            <TextArea fx:id="reportDescriptionArea" prefRowCount="3" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+                        </GridPane>
+                        
+                        <HBox spacing="10">
+                            <Button fx:id="generateButton" text="Generuj" onAction="#handleGenerateReport" HBox.hgrow="ALWAYS" style="-fx-background-color: #4CAF50; -fx-text-fill: white;"/>
+                            <Button fx:id="saveTemplateButton" text="Zapisz szablon" onAction="#handleSaveTemplate" HBox.hgrow="ALWAYS" style="-fx-background-color: #2196F3; -fx-text-fill: white;"/>
+                        </HBox>
+                    </VBox>
+                </content>
+            </TitledPane>
+            
+            <!-- Lista raportów -->
+            <TitledPane text="Zapisane raporty" expanded="true">
+                <content>
+                    <VBox spacing="10">
+                        <TableView fx:id="reportsTable" prefHeight="200">
+                            <columns>
+                                <TableColumn fx:id="titleColumn" text="Tytuł" prefWidth="150"/>
+                                <TableColumn fx:id="typeColumn" text="Typ" prefWidth="100"/>
+                                <TableColumn fx:id="dateColumn" text="Data" prefWidth="100"/>
+                                <TableColumn fx:id="formatColumn" text="Format" prefWidth="80"/>
+                            </columns>
+                        </TableView>
+                        
+                        <HBox spacing="10">
+                            <Button fx:id="exportButton" text="Eksportuj" onAction="#handleExportReport" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="scheduleButton" text="Zaplanuj" onAction="#handleScheduleReport" HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="refreshButton" text="Odśwież" onAction="#handleRefresh" HBox.hgrow="ALWAYS"/>
+                        </HBox>
+                    </VBox>
+                </content>
+            </TitledPane>
+            
+            <!-- Status -->
+            <Label fx:id="statusLabel" style="-fx-text-fill: #666;"/>
+        </VBox>
+        
+        <!-- Prawy panel - podgląd raportu -->
+        <ScrollPane>
+            <content>
+                <VBox fx:id="reportPreviewContainer" spacing="10" style="-fx-background-color: #f5f5f5;">
+                    <padding>
+                        <Insets top="10" right="10" bottom="10" left="10"/>
+                    </padding>
+                    
+                    <TitledPane text="Podgląd raportu" expanded="true">
+                        <content>
+                            <WebView fx:id="reportWebView" prefHeight="600"/>
+                        </content>
+                    </TitledPane>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </items>
+</SplitPane>
