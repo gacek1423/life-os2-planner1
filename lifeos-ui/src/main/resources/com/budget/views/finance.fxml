@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/17"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.budget.controller.modules.FinanceController"
+            visible="false">
+    <center>
+        <VBox spacing="20" style="-fx-padding: 40;">
+            <HBox spacing="15" alignment="CENTER_LEFT" styleClass="card" style="-fx-padding: 20;">
+                <ComboBox fx:id="typeBox" promptText="Typ" prefWidth="120"/>
+                <ComboBox fx:id="categoryBox" promptText="Wybierz kategorię" editable="true" prefWidth="180"/>
+                <TextField fx:id="amountField" promptText="Kwota" prefWidth="100"/>
+                <TextField fx:id="descField" promptText="Opis" HBox.hgrow="ALWAYS"/>
+                <DatePicker fx:id="datePicker" promptText="Data" prefWidth="130" />
+                <Button text="DODAJ" onAction="#addTransaction" styleClass="button-action" prefWidth="90"/>
+            </HBox>
+
+            <HBox spacing="15" alignment="CENTER_LEFT">
+                <HBox spacing="5" alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+                    <Button text="◀" onAction="#prevMonth" styleClass="icon-button"/>
+                    <Label fx:id="monthLabel" text="STYCZEŃ 2026" styleClass="card-value" style="-fx-font-size: 18px;"/>
+                    <Button text="▶" onAction="#nextMonth" styleClass="icon-button"/>
+                </HBox>
+                <TextField fx:id="searchField" promptText="🔍 Szukaj transakcji..." styleClass="search-field" prefWidth="250"/>
+            </HBox>
+
+            <TableView fx:id="transactionTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="colDate" text="DATA" prefWidth="120"/>
+                    <TableColumn fx:id="colCategory" text="KATEGORIA" prefWidth="180"/>
+                    <TableColumn fx:id="colDesc" text="OPIS" prefWidth="300"/>
+                    <TableColumn fx:id="colAmount" text="KWOTA" prefWidth="150"/>
+                    <TableColumn fx:id="colType" text="TYP" prefWidth="120"/>
+                </columns>
+                <columnResizePolicy><TableView fx:constant="CONSTRAINED_RESIZE_POLICY"/></columnResizePolicy>
+                <placeholder><Label text="Brak danych dla wybranego miesiąca" style="-fx-text-fill: #6c7280;"/></placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+    <right>
+        <VBox spacing="20" prefWidth="350" style="-fx-padding: 40 40 40 0;">
+            <VBox styleClass="card" alignment="TOP_CENTER" spacing="10" VBox.vgrow="ALWAYS">
+                <Label text="STRUKTURA WYDATKÓW" styleClass="card-title" style="-fx-padding: 15;"/>
+                <PieChart fx:id="expenseChart" labelsVisible="false" legendSide="BOTTOM" VBox.vgrow="ALWAYS" maxHeight="250"/>
+            </VBox>
+
+            <VBox styleClass="card" alignment="TOP_CENTER" spacing="10" VBox.vgrow="ALWAYS">
+                <Label text="REALIZACJA BUDŻETU" styleClass="card-title" style="-fx-padding: 15;"/>
+                <ListView fx:id="budgetListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;"/>
+            </VBox>
+
+            <VBox styleClass="card" style="-fx-padding: 25; -fx-background-color: linear-gradient(to bottom right, #2a3d4d, #1f2229);">
+                <Label text="BILANS MIESIĄCA" styleClass="card-subtitle"/>
+                <HBox alignment="CENTER_LEFT" spacing="10">
+                    <Label fx:id="balanceLabel" text="0.00" styleClass="card-value-big"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <VBox alignment="CENTER_RIGHT" spacing="2">
+                        <Label fx:id="incomeLabel" text="+0.00" style="-fx-text-fill: #51cf66; -fx-font-weight: bold;"/>
+                        <Label fx:id="expenseLabel" text="-0.00" style="-fx-text-fill: #ff6b6b; -fx-font-weight: bold;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </VBox>
+    </right>
+</BorderPane>

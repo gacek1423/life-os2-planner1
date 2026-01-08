@@ -1,34 +1,85 @@
 package com.budget.ui;
 
-import com.budget.db.DatabaseService; // <--- UPEWNIJ SIĘ, ŻE MASZ TEN IMPORT
+import com.budget.controller.SplashController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import com.budget.dao.GoalDAO;
-import com.budget.modules.goals.GoalService;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
+/**
+ * Główna klasa uruchomieniowa JavaFX
+ */
 public class App extends Application {
-    private GoalService goalService;
+
     @Override
-    public void start(Stage stage) throws IOException {
-        // 1. NAJPIERW TWORZYMY TABELE W BAZIE
-        DatabaseService.initDatabase(); // <--- DODAJ TĘ LINIĘ TUTAJ!
-        goalService = new GoalService(new GoalDAO());
-        // 2. POTEM ŁADUJEMY UI
-        var location = getClass().getResource("/com/budget/dashboard.fxml");
+    public void start(Stage primaryStage) throws Exception {
+        // 1. Ładowanie Splash Screena
+        FXMLLoader splashLoader = new FXMLLoader(getClass().getResource("/com/budget/splash.fxml"));
+        Parent splashRoot = splashLoader.load();
+        SplashController splashController = splashLoader.getController();
 
-        if (location == null) {
-            throw new IllegalStateException("FATAL ERROR: Nie znaleziono pliku dashboard.fxml!");
-        }
+        // 2. Konfiguracja okna Splash
+        Scene splashScene = new Scene(splashRoot);
+        splashScene.setFill(Color.TRANSPARENT);
 
-        FXMLLoader fxmlLoader = new FXMLLoader(location);
-        Scene scene = new Scene(fxmlLoader.load(), 1200, 800);
-        stage.setTitle("Life OS 2.0 Enterprise");
-        stage.setScene(scene);
-        stage.show();
+        primaryStage.setScene(splashScene);
+        primaryStage.initStyle(StageStyle.TRANSPARENT);
+        primaryStage.show();
+
+        // 3. Wątek w tle (Symulacja ładowania systemu)
+        new Thread(() -> {
+            try {
+                // Symulacja kroków ładowania
+                Thread.sleep(500);
+                splashController.updateProgress("Łączenie z bazą danych...", 0.2);
+
+                Thread.sleep(600);
+                splashController.updateProgress("Wczytywanie modułu Finanse...", 0.4);
+
+                Thread.sleep(400);
+                splashController.updateProgress("Inicjalizacja zadań i celów...", 0.6);
+
+                Thread.sleep(500);
+                splashController.updateProgress("Generowanie raportów...", 0.8);
+
+                Thread.sleep(400);
+                splashController.updateProgress("System gotowy.", 1.0);
+                Thread.sleep(300);
+
+                // 4. Przełączenie na główne okno (wątek UI)
+                Platform.runLater(() -> {
+                    try {
+                        showMainDashboard(new Stage());
+                        primaryStage.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            } catch (InterruptedException e) {
+                // ZMIANA: Usunięto "| IOException", bo IOException jest obsłużony wyżej (wewnątrz runLater)
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private void showMainDashboard(Stage mainStage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/budget/dashboard.fxml"));
+        Parent root = loader.load();
+
+        mainStage.setMinWidth(1000);
+        mainStage.setMinHeight(700);
+
+        Scene scene = new Scene(root, 1280, 800);
+        mainStage.setScene(scene);
+        mainStage.setTitle("Life OS 2.0 Enterprise");
+        mainStage.show();
     }
 
     public static void main(String[] args) {

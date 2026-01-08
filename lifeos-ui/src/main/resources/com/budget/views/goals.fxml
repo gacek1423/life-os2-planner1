@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.budget.controller.modules.GoalController"
+      visible="false" spacing="20" style="-fx-padding: 40;">
+
+    <HBox spacing="15" alignment="CENTER_LEFT" styleClass="card" style="-fx-padding: 20;">
+        <TextField fx:id="goalNameField" promptText="Nazwa celu (np. Wakacje)" HBox.hgrow="ALWAYS"/>
+        <TextField fx:id="goalTargetField" promptText="Cel (PLN)" prefWidth="120"/>
+        <TextField fx:id="goalCurrentField" promptText="Obecnie" prefWidth="120"/>
+        <DatePicker fx:id="goalDatePicker" promptText="Termin" prefWidth="150"/>
+        <Button text="DODAJ" onAction="#addGoal" styleClass="button-action" prefWidth="100"/>
+    </HBox>
+
+    <Label text="CELE FINANSOWE" styleClass="header-title"/>
+    <ListView fx:id="goalListView" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;"/>
+</VBox>

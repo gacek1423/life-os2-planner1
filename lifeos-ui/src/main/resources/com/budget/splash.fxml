@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.effect.DropShadow?>
+
+<StackPane xmlns="http://javafx.com/javafx/17"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="com.budget.controller.SplashController"
+           style="-fx-background-color: transparent;">
+
+    <VBox alignment="CENTER" spacing="20" style="-fx-background-color: #1a1d26; -fx-background-radius: 20; -fx-padding: 40; -fx-border-color: #323642; -fx-border-radius: 20; -fx-border-width: 1;">
+        <effect>
+            <DropShadow color="#000000" radius="20" spread="0.3" offsetX="0" offsetY="10"/>
+        </effect>
+
+        <StackPane>
+            <Circle radius="40" fill="#4fa3c7" opacity="0.1"/>
+            <Circle radius="25" fill="#4fa3c7"/>
+            <Label text="L" style="-fx-text-fill: #1a1d26; -fx-font-weight: bold; -fx-font-size: 28px;"/>
+        </StackPane>
+
+        <VBox alignment="CENTER" spacing="5">
+            <Label text="Life OS 2.0" style="-fx-text-fill: white; -fx-font-family: 'Segoe UI'; -fx-font-weight: bold; -fx-font-size: 32px;"/>
+            <Label text="ENTERPRISE EDITION" style="-fx-text-fill: #8b92a1; -fx-font-size: 10px; -fx-letter-spacing: 2px; -fx-font-weight: bold;"/>
+        </VBox>
+
+        <Region prefHeight="20"/>
+
+        <VBox spacing="5" alignment="CENTER_LEFT" prefWidth="300">
+            <Label fx:id="statusLabel" text="Inicjalizacja systemu..." style="-fx-text-fill: #6c7280; -fx-font-size: 11px;"/>
+            <ProgressBar fx:id="progressBar" progress="0.0" prefWidth="300" style="-fx-accent: #4fa3c7; -fx-control-inner-background: #212530; -fx-text-box-border: transparent;"/>
+        </VBox>
+
+        <Label text="© 2026 Your Company. All rights reserved." style="-fx-text-fill: #323642; -fx-font-size: 9px;"/>
+
+    </VBox>
+</StackPane>

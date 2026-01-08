@@ -1,17 +1,30 @@
 package com.budget.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class Task {
     private int id;
     private String title;
-    private String priority; // "HIGH", "MEDIUM", "LOW"
-    private boolean done;
+    private boolean isDone;
     private LocalDate dueDate;
+    private String priority; // np. "HIGH", "MEDIUM", "LOW"
+
+    public Task(int id, String title, boolean isDone, LocalDate dueDate, String priority) {
+        this.id = id;
+        this.title = title;
+        this.isDone = isDone;
+        this.dueDate = dueDate;
+        this.priority = priority;
+    }
+
+    // Gettery i Settery
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public boolean isDone() { return isDone; }
+    public void setDone(boolean done) { isDone = done; }
+    public LocalDate getDueDate() { return dueDate; }
+    public String getPriority() { return priority; }
+
+    @Override
+    public String toString() { return title; }
 }

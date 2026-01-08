@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.budget.controller.modules.KokpitController"
+      spacing="25" style="-fx-padding: 40;" visible="false">
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox>
+            <Label text="Centrum Dowodzenia" styleClass="header-title"/>
+            <Label text="Oto Twój dzisiejszy przegląd sytuacji." style="-fx-text-fill: #8b92a1; -fx-font-size: 14px;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="lblDate" text="Ładowanie daty..." style="-fx-text-fill: #6c7280; -fx-font-size: 14px; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <FlowPane hgap="20" vgap="20" prefWrapLength="1000" style="-fx-padding: 0 0 10 0;">
+        <VBox styleClass="card-highlight" prefWidth="280" minWidth="250" style="-fx-padding: 25;">
+            <Label text="DOSTĘPNE ŚRODKI" style="-fx-text-fill: rgba(255,255,255,0.6); -fx-font-size: 11px; -fx-font-weight: bold;"/>
+            <Label fx:id="dashBalanceLabel" text="0.00 PLN" styleClass="card-value-big"/>
+        </VBox>
+
+        <VBox styleClass="card" prefWidth="280" minWidth="250" style="-fx-padding: 25;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="PILNE ZADANIA" styleClass="card-subtitle"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="🔥" style="-fx-font-size: 18px;"/>
+            </HBox>
+            <Label fx:id="dashTasksLabel" text="0 zadań" styleClass="card-value"/>
+            <Label text="wymaga Twojej uwagi" style="-fx-text-fill: #6c7280; -fx-font-size: 11px;"/>
+        </VBox>
+
+        <VBox styleClass="card" prefWidth="280" minWidth="250" style="-fx-padding: 25;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="PŁYNNOŚĆ FINANSOWA" styleClass="card-subtitle"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="📈" style="-fx-font-size: 18px;"/>
+            </HBox>
+            <Label fx:id="lblBudgetSummary" text="Analiza..." style="-fx-text-fill: #51cf66; -fx-font-size: 15px; -fx-font-weight: bold; padding: 10 0 0 0;"/>
+        </VBox>
+    </FlowPane>
+
+    <VBox spacing="15">
+        <Label text="MOJE PORTFELE" styleClass="card-subtitle"/>
+        <ScrollPane styleClass="purse-scroll-pane" fitToHeight="true" vbarPolicy="NEVER" hbarPolicy="AS_NEEDED" minHeight="170" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <content>
+                <HBox fx:id="purseContainer" spacing="20" style="-fx-background-color: transparent; -fx-padding: 5 5 20 5;"/>
+            </content>
+        </ScrollPane>
+    </VBox>
+
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="15" style="-fx-padding: 20;">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="OSTATNIE TRANSAKCJE" styleClass="card-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Zobacz wszystkie" onAction="#goToFinanse" styleClass="icon-button" style="-fx-font-size: 11px;"/>
+            </HBox>
+            <ListView fx:id="recentTransactionsList" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <placeholder><Label text="Brak ostatnich transakcji" style="-fx-text-fill: #6c7280; -fx-font-style: italic;"/></placeholder>
+            </ListView>
+        </VBox>
+
+        <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="15" style="-fx-padding: 20;">
+            <HBox alignment="CENTER_LEFT">
+                <Label text="NAJBLIŻSZE TERMINY" styleClass="card-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="+ Nowe" onAction="#goToZadania" styleClass="icon-button" style="-fx-font-size: 11px;"/>
+            </HBox>
+            <ListView fx:id="urgentTasksList" style="-fx-background-color: transparent;" VBox.vgrow="ALWAYS">
+                <placeholder><Label text="Wszystkie zadania wykonane!" style="-fx-text-fill: #6c7280; -fx-font-style: italic;"/></placeholder>
+            </ListView>
+        </VBox>
+    </HBox>
+</VBox>

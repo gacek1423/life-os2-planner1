@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.chart.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.budget.controller.modules.ReportController"
+      spacing="25" style="-fx-padding: 40;" visible="false" alignment="TOP_CENTER">
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox>
+            <Label text="Analityka 360°" styleClass="header-title"/>
+            <Label text="Pełny przekrój Twojej kondycji finansowej (Ostatnie 12 miesięcy)." style="-fx-text-fill: #8b92a1;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnGenerateReport" text="Generuj Raport (HTML)" onAction="#generateReport" styleClass="button-action"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+            <VBox spacing="25" style="-fx-background-color: transparent;">
+                <HBox spacing="20" alignment="CENTER">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="ŚREDNI PRZYCHÓD" styleClass="card-subtitle"/>
+                        <Label fx:id="repAvgIncome" text="0 PLN" style="-fx-text-fill: #51cf66; -fx-font-size: 20px; -fx-font-weight: bold; padding: 10 0 0 0;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="ŚREDNI WYDATEK" styleClass="card-subtitle"/>
+                        <Label fx:id="repAvgExpense" text="0 PLN" style="-fx-text-fill: #ff6b6b; -fx-font-size: 20px; -fx-font-weight: bold; padding: 10 0 0 0;"/>
+                    </VBox>
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" alignment="CENTER" style="-fx-padding: 20;">
+                        <Label text="ROCZNE OSZCZĘDNOŚCI" styleClass="card-subtitle"/>
+                        <Label fx:id="repTotalSavings" text="0 PLN" style="-fx-text-fill: #4fa3c7; -fx-font-size: 20px; -fx-font-weight: bold; padding: 10 0 0 0;"/>
+                    </VBox>
+                </HBox>
+
+                <VBox styleClass="card" style="-fx-padding: 25;">
+                    <Label text="PRZEPŁYWY PIENIĘŻNE (YOY)" styleClass="card-title"/>
+                    <AreaChart fx:id="reportTrendChart" createSymbols="false" legendSide="TOP" minHeight="300">
+                        <xAxis><CategoryAxis label="Miesiąc"/></xAxis>
+                        <yAxis><NumberAxis label="Kwota (PLN)"/></yAxis>
+                    </AreaChart>
+                </VBox>
+
+                <HBox spacing="20">
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 25;">
+                        <Label text="STOPA OSZCZĘDNOŚCI (%)" styleClass="card-title"/>
+                        <BarChart fx:id="reportSavingsChart" legendVisible="false" minHeight="250">
+                            <xAxis><CategoryAxis label="Miesiąc"/></xAxis>
+                            <yAxis><NumberAxis label="Procent (%)"/></yAxis>
+                        </BarChart>
+                    </VBox>
+
+                    <VBox styleClass="card" HBox.hgrow="ALWAYS" style="-fx-padding: 25;">
+                        <Label text="GŁÓWNE KATEGORIE KOSZTÓW" styleClass="card-title"/>
+                        <BarChart fx:id="reportCategoryChart" legendVisible="false" minHeight="250" horizontalGridLinesVisible="true">
+                            <xAxis><CategoryAxis label="Kategoria"/></xAxis>
+                            <yAxis><NumberAxis label="Suma Wydatków"/></yAxis>
+                        </BarChart>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </content>
+    </ScrollPane>
+</VBox>

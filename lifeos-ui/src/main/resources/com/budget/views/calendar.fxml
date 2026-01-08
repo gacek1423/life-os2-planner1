@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.budget.controller.modules.CalendarController"
+      visible="false" spacing="20" style="-fx-padding: 40;">
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <VBox>
+            <Label text="Globalny Kalendarz" styleClass="header-title"/>
+            <Label text="Planuj przepływy pieniężne i zadania w czasie." style="-fx-text-fill: #8b92a1;"/>
+        </VBox>
+        <Region HBox.hgrow="ALWAYS"/>
+
+        <HBox spacing="15" alignment="CENTER">
+            <Button text="◀" onAction="#prevMonth" styleClass="icon-button"/>
+            <Label fx:id="calMonthLabel" text="STYCZEŃ 2026" styleClass="month-label" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Button text="▶" onAction="#nextMonth" styleClass="icon-button"/>
+        </HBox>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" fitToHeight="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+            <GridPane fx:id="calendarGrid" styleClass="calendar-grid" hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                    <ColumnConstraints hgrow="ALWAYS" percentWidth="14.2"/>
+                </columnConstraints>
+            </GridPane>
+        </content>
+    </ScrollPane>
+</VBox>

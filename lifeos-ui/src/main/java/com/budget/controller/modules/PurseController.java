@@ -1,4 +1,4 @@
-package com.budget.controller.managers;
+package com.budget.controller.modules;
 
 import com.budget.dao.PurseDAO;
 import com.budget.infrastructure.AsyncRunner;
@@ -11,11 +11,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
-public class PurseManager {
+public class PurseController {
     private final PurseDAO purseDAO = new PurseDAO();
     private final HBox container; // Kontener na kokpicie
 
-    public PurseManager(HBox container) {
+    public PurseController(HBox container) {
         this.container = container;
     }
 
@@ -31,8 +31,8 @@ public class PurseManager {
 
     private VBox createCard(Purse p) {
         VBox card = new VBox();
-        card.setPrefSize(220, 120);
-        card.setMinSize(220, 120);
+        card.setPrefSize(220, 130); // Zwiększ nieco wysokość
+        card.setMinSize(220, 130);
 
         String bgStyle = switch (p.getType()) {
             case LOCKED -> "-fx-background-color: linear-gradient(to bottom right, #8a3c3c, #5c2b2b);";

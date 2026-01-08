@@ -1,197 +1,133 @@
 package com.budget.controller;
 
-import com.budget.controller.managers.*; // Import wszystkich Managerów
+import com.budget.controller.modules.*; // Importuje wszystkie kontrolery modułów
 import com.budget.infrastructure.EventBus;
+import com.budget.model.Command;
 import com.budget.modules.finance.events.TransactionAddedEvent;
 import com.budget.modules.goals.events.GoalAddedEvent;
 import com.budget.modules.tasks.events.TaskUpdatedEvent;
-import com.budget.model.Goal;
-import com.budget.model.Task;
-import com.budget.model.Transaction;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
-import javafx.scene.chart.*;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import javafx.stage.Stage;
+import javafx.geometry.Pos;
+import javafx.scene.control.ContentDisplay;
 
 import java.util.Arrays;
 import java.util.List;
 
 public class DashboardController {
 
-    // --- FXML UI ELEMENTS ---
-    @FXML private Button btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia;
+    // --- NAV UI ---
+    @FXML private Button btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia, btnKalendarz;
     @FXML private StackPane rootPane;
-    @FXML private VBox viewKokpit, viewZadania, viewCele, viewRaporty, viewUstawienia;
-    @FXML private BorderPane viewFinanse;
+    @FXML private VBox sidebar, logoContainer;
 
-    // Kokpit Widgets
-    @FXML private Label dashBalanceLabel, dashTasksLabel, lblDate, lblBudgetSummary;
-    @FXML private HBox purseContainer;
-    @FXML private ListView<Task> urgentTasksList;
-    @FXML private ListView<Transaction> recentTransactionsList;
+    // --- WSTRZYKNIĘTE MODUŁY (Widoki + Kontrolery) ---
+    // Nazwa zmiennej musi brzmieć: fx:id + "Controller"
 
-    // Finanse Widgets
-    @FXML private ComboBox<String> typeBox;
-    @FXML private TextField categoryField, amountField, descField, searchField;
-    @FXML private DatePicker datePicker;
-    @FXML private TableView<Transaction> transactionTable;
-    @FXML private PieChart expenseChart;
-    @FXML private ListView<HBox> budgetListView;
-    @FXML private Label balanceLabel, incomeLabel, expenseLabel, monthLabel;
+    @FXML private Parent kokpitView;
+    @FXML private KokpitController kokpitViewController;
 
-    // Zadania Widgets
-    @FXML private TextField taskTitleField;
-    @FXML private ComboBox<String> priorityBox;
-    @FXML private DatePicker taskDatePicker;
-    @FXML private ListView<Task> taskListView;
+    @FXML private Parent financeView;
+    @FXML private FinanceController financeViewController;
 
-    // Cele Widgets
-    @FXML private TextField goalNameField, goalTargetField, goalCurrentField;
-    @FXML private DatePicker goalDatePicker;
-    @FXML private ListView<Goal> goalListView;
+    @FXML private Parent taskView;
+    @FXML private TaskController taskViewController;
 
-    // Raporty Widgets
-    @FXML private Label repAvgIncome, repAvgExpense, repTotalSavings;
-    @FXML private AreaChart<String, Number> reportTrendChart;
-    @FXML private BarChart<String, Number> reportSavingsChart, reportCategoryChart;
-    @FXML private Button btnGenerateReport;
-    // Navigation
-    @FXML private Button btnKalendarz;
-    // Views
-    @FXML private VBox viewKalendarz;
-    // Calendar Widgets
-    @FXML private GridPane calendarGrid;
-    @FXML private Label calMonthLabel;
+    @FXML private Parent goalView;
+    @FXML private GoalController goalViewController;
 
+    @FXML private Parent reportView;
+    @FXML private ReportController reportViewController;
 
+    @FXML private Parent calendarView;
+    @FXML private CalendarController calendarViewController;
 
-    // --- MANAGERS (DELEGACJA) ---
-    private FinanceManager financeManager;
-    private TaskManager taskManager;
-    private GoalManager goalManager;
-    private PurseManager purseManager;
-    private ReportManager reportManager;
-    private SettingsManager settingsManager;
-    private CalendarManager calendarManager;
+    @FXML private Parent settingsView;
+    @FXML private SettingsController settingsViewController;
+
+    // --- COMMAND PALETTE ---
+    @FXML private StackPane commandPaletteOverlay;
+    @FXML private TextField commandInput;
+    @FXML private ListView<Command> commandList;
+    private final javafx.collections.ObservableList<Command> allCommands = javafx.collections.FXCollections.observableArrayList();
+    private boolean isSidebarCollapsed = false;
 
     @FXML
     public void initialize() {
-        // 1. Inicjalizacja Managerów
-        financeManager = new FinanceManager(transactionTable, expenseChart, budgetListView,
-                balanceLabel, incomeLabel, expenseLabel, monthLabel,
-                amountField, categoryField, descField, searchField, typeBox, datePicker);
+        // Event Bus - Centralna Magistrala Danych
+        // Gdy coś się zmieni, informujemy odpowiednie kontrolery, by się odświeżyły
 
-        taskManager = new TaskManager(taskListView, urgentTasksList, taskTitleField, priorityBox, taskDatePicker, dashTasksLabel);
-
-        goalManager = new GoalManager(goalListView, goalNameField, goalTargetField, goalCurrentField, goalDatePicker);
-
-        purseManager = new PurseManager(purseContainer);
-
-        reportManager = new ReportManager(reportTrendChart, reportSavingsChart, reportCategoryChart, repAvgIncome, repAvgExpense, repTotalSavings);
-        calendarManager = new com.budget.controller.managers.CalendarManager(calendarGrid, calMonthLabel,this::handleCalendarDateSelect /* <-- Nowy callback*/);
-        // 2. Setup (Konfiguracja wstępna)
-        financeManager.setup();
-        taskManager.setup();
-        goalManager.setup();
-        reportManager.setup();
-        purseManager.refreshPurses();
-        settingsManager = new SettingsManager();
-
-        // 3. EventBus (Reaktywne odświeżanie)
         EventBus.subscribe(TransactionAddedEvent.class, e -> Platform.runLater(() -> {
-            financeManager.refreshFinances();
-            purseManager.refreshPurses(); // Finanse wpływają na portfele
-            reportManager.refreshReports(); // I na raporty
-            calendarManager.refreshCalendar();
+            financeViewController.refreshFinances();
+            kokpitViewController.refresh(); // Kokpit musi zaktualizować saldo
+            reportViewController.refreshReports();
+            calendarViewController.refreshCalendar();
         }));
 
-        EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> taskManager.refreshTasks()));
-        EventBus.subscribe(GoalAddedEvent.class, e -> Platform.runLater(() -> goalManager.refreshGoals()));
-        EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> calendarManager.refreshCalendar()));
+        EventBus.subscribe(TaskUpdatedEvent.class, e -> Platform.runLater(() -> {
+            taskViewController.refreshTasks();
+            kokpitViewController.refresh(); // Kokpit musi zaktualizować licznik zadań
+            calendarViewController.refreshCalendar();
+        }));
 
+        EventBus.subscribe(GoalAddedEvent.class, e -> Platform.runLater(() -> goalViewController.refreshGoals()));
 
-        // Inne
-        showKokpit();
+        setupCommandPalette();
+        showKokpit(); // Domyślny widok
     }
 
-    // --- ACTIONS (Delegowanie do managerów) ---
-    // Metoda wywoływana, gdy klikniesz dzień w kalendarzu
-    // Metoda wywoływana, gdy klikniesz dzień w kalendarzu
-    private void handleCalendarDateSelect(java.time.LocalDate date) {
-        // Tworzymy dialog
-        ChoiceDialog<String> dialog = new ChoiceDialog<>("Transakcja", "Transakcja", "Zadanie");
-        dialog.setTitle("Planer");
-        dialog.setHeaderText("Planowanie dla: " + date);
-        dialog.setContentText("Co chcesz dodać?");
+    // --- NAWIGACJA ---
+    @FXML public void showKokpit() { switchView(kokpitView, btnKokpit); kokpitViewController.refresh(); }
+    @FXML public void showFinanse() { switchView(financeView, btnFinanse); financeViewController.refreshFinances(); }
+    @FXML public void showZadania() { switchView(taskView, btnZadania); taskViewController.refreshTasks(); }
+    @FXML public void showCele() { switchView(goalView, btnCele); goalViewController.refreshGoals(); }
+    @FXML public void showRaporty() { switchView(reportView, btnRaporty); reportViewController.refreshReports(); }
+    @FXML public void showKalendarz() { switchView(calendarView, btnKalendarz); calendarViewController.refreshCalendar(); }
+    @FXML public void showUstawienia() { switchView(settingsView, btnUstawienia); }
 
-        // 1. Podpinamy nasz styl CSS do dialogu
-        // Fix: Używamy pełnej ścieżki do zasobu
-        dialog.getDialogPane().getStylesheets().add(getClass().getResource("/com/budget/style.css").toExternalForm());
+    private void switchView(Parent view, Button activeButton) {
+        // Ukrywamy wszystko
+        List<Parent> views = Arrays.asList(kokpitView, financeView, taskView, goalView, reportView, calendarView, settingsView);
+        views.forEach(v -> v.setVisible(false));
 
-        // 2. Usuwamy standardową, brzydką ikonę "?" (grafika null)
-        dialog.setGraphic(null);
-
-        // 3. Opcjonalnie: Ustawiamy ikonę okna (Stage) na logo aplikacji (jeśli masz ikonę)
-        Stage stage = (Stage) dialog.getDialogPane().getScene().getWindow();
-        // stage.getIcons().add(new Image(...)); // Odkomentuj jeśli masz ikonę
-
-        dialog.showAndWait().ifPresent(type -> {
-            if ("Transakcja".equals(type)) {
-                showFinanse();
-                datePicker.setValue(date);
-                // Mały trick: uruchamiamy focus z opóźnieniem, żeby zadziałał po przełączeniu widoku
-                Platform.runLater(() -> amountField.requestFocus());
-            } else {
-                showZadania();
-                taskDatePicker.setValue(date);
-                Platform.runLater(() -> taskTitleField.requestFocus());
-            }
-        });
-    }
-
-
-    @FXML private void handleAddTransaction() { financeManager.addTransaction(); }
-    @FXML private void prevMonth() { financeManager.prevMonth(); }
-    @FXML private void nextMonth() { financeManager.nextMonth(); }
-
-    @FXML private void handleAddTask() { taskManager.addTask(); }
-    @FXML private void handleAddGoal() { goalManager.addGoal(); }
-
-    @FXML private void handleGenerateReport() {
-        reportManager.generateReport((Stage) rootPane.getScene().getWindow());
-    }
-
-    // --- NAVIGATION ---
-    @FXML public void showKokpit() { switchView(viewKokpit, btnKokpit); purseManager.refreshPurses(); }
-    @FXML public void showFinanse() { switchView(viewFinanse, btnFinanse); financeManager.refreshFinances(); }
-    @FXML public void showZadania() { switchView(viewZadania, btnZadania); taskManager.refreshTasks(); }
-    @FXML public void showCele() { switchView(viewCele, btnCele); goalManager.refreshGoals(); }
-    @FXML public void showRaporty() { switchView(viewRaporty, btnRaporty); reportManager.refreshReports(); }
-    @FXML public void showUstawienia() { switchView(viewUstawienia, btnUstawienia); }
-
-    private void switchView(javafx.scene.Node view, Button activeButton) {
-        viewKokpit.setVisible(false);
-        viewFinanse.setVisible(false);
-        viewZadania.setVisible(false);
-        viewCele.setVisible(false);
-        viewRaporty.setVisible(false);
-        viewUstawienia.setVisible(false);
-        viewKalendarz.setVisible(false);
-
-        List<Button> btns = Arrays.asList(btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia);
+        List<Button> btns = Arrays.asList(btnKokpit, btnFinanse, btnZadania, btnCele, btnRaporty, btnUstawienia, btnKalendarz);
         btns.forEach(b -> b.getStyleClass().remove("sidebar-button-active"));
 
+        // Pokazujemy wybrane
         view.setVisible(true);
         activeButton.getStyleClass().add("sidebar-button-active");
     }
 
-    // Puste metody dla przycisków, których jeszcze nie obsłużyliśmy w pełni
-    @FXML private void handleExport() {settingsManager.exportData((Stage) rootPane.getScene().getWindow());}
-    @FXML private void handleBackup() {settingsManager.createDatabaseBackup((Stage) rootPane.getScene().getWindow());}
-    @FXML private void handleClearDatabase() {settingsManager.clearDatabase();}
-    @FXML public void showKalendarz() { switchView(viewKalendarz, btnKalendarz); calendarManager.refreshCalendar(); }
-    @FXML private void prevCalMonth() { calendarManager.prevMonth(); }
-    @FXML private void nextCalMonth() { calendarManager.nextMonth(); }
+    @FXML
+    private void toggleSidebar() {
+        if (isSidebarCollapsed) {
+            sidebar.setPrefWidth(240);
+            logoContainer.setVisible(true);
+            sidebar.getChildren().forEach(n -> { if(n instanceof Button b && !"☰".equals(b.getText())) { b.setContentDisplay(ContentDisplay.LEFT); b.setAlignment(Pos.CENTER_LEFT); }});
+            isSidebarCollapsed = false;
+        } else {
+            sidebar.setPrefWidth(60);
+            logoContainer.setVisible(false);
+            sidebar.getChildren().forEach(n -> { if(n instanceof Button b && !"☰".equals(b.getText())) { b.setContentDisplay(ContentDisplay.TEXT_ONLY); b.setAlignment(Pos.CENTER); }});
+            isSidebarCollapsed = true;
+        }
+    }
+
+    private void setupCommandPalette() {
+        // ... (Twój kod palety, używający metod powyżej, np. this::showFinanse) ...
+        // Możesz tu też dodać komendy globalne
+        allCommands.add(new Command("Zamknij", "Wyjście", () -> Platform.exit()));
+
+        // ... obsługa klawiszy (CTRL+K) ...
+    }
+
+    // Metody pomocnicze dla Palety (żeby nie pisać logiki 2 razy)
+    private void toggleCommandPalette() {
+        commandPaletteOverlay.setVisible(!commandPaletteOverlay.isVisible());
+        if(commandPaletteOverlay.isVisible()) { commandInput.clear(); commandInput.requestFocus(); }
+    }
+    private void executeSelectedCommand() { /* ... */ }
 }

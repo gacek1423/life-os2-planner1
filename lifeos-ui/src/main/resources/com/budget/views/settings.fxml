@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.budget.controller.modules.SettingsController"
+      visible="false" spacing="25" style="-fx-padding: 40;">
+
+    <Label text="Konfiguracja Systemu" styleClass="header-title"/>
+    <Label text="Zarządzaj swoim profilem i danymi." style="-fx-text-fill: #8b92a1; -fx-padding: 0 0 20 0;"/>
+
+    <HBox spacing="30" VBox.vgrow="ALWAYS">
+        <VBox spacing="25" HBox.hgrow="ALWAYS">
+            <VBox styleClass="card" style="-fx-padding: 25;">
+                <Label text="PROFIL UŻYTKOWNIKA" styleClass="settings-section-title"/>
+                <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 15 0 0 0;">
+                    <StackPane>
+                        <Circle radius="30" fill="#323642"/>
+                        <Label text="JP" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 18px;"/>
+                    </StackPane>
+                    <VBox spacing="5">
+                        <Label text="Jan Płatnik" style="-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 16px;"/>
+                        <Label text="Administrator (Enterprise Lic.)" styleClass="settings-value"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="card" style="-fx-padding: 25;" spacing="20">
+                <Label text="PREFERENCJE APLIKACJI" styleClass="settings-section-title"/>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox>
+                        <Label text="Główna Waluta" styleClass="settings-label"/>
+                        <Label text="Używana w raportach i kokpicie" styleClass="settings-value"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <ComboBox promptText="PLN (Polski Złoty)" style="-fx-pref-width: 160;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+
+        <VBox spacing="25" HBox.hgrow="ALWAYS">
+            <VBox styleClass="card" style="-fx-padding: 25;" spacing="20">
+                <Label text="ZARZĄDZANIE DANYMI" styleClass="settings-section-title"/>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox>
+                        <Label text="Eksport Transakcji" styleClass="settings-label"/>
+                        <Label text="Format CSV (Excel)" styleClass="settings-value"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Pobierz CSV" onAction="#exportData" styleClass="icon-button"/>
+                </HBox>
+                <Separator style="-fx-opacity: 0.05;"/>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox>
+                        <Label text="Kopia Zapasowa" styleClass="settings-label"/>
+                        <Label text="Pełny zrzut bazy danych (.db)" styleClass="settings-value"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Utwórz Backup" onAction="#createBackup" styleClass="icon-button"/>
+                </HBox>
+            </VBox>
+
+            <VBox styleClass="card" style="-fx-padding: 25; -fx-border-color: rgba(255, 107, 107, 0.3); -fx-border-width: 1; -fx-background-color: rgba(255, 107, 107, 0.05);">
+                <HBox alignment="CENTER_LEFT" spacing="15">
+                    <Label text="⚠" style="-fx-text-fill: #ff6b6b; -fx-font-size: 24px;"/>
+                    <VBox>
+                        <Label text="STREFA NIEBEZPIECZNA" styleClass="settings-section-title" style="-fx-text-fill: #ff6b6b; -fx-border-color: transparent;"/>
+                        <Label text="Operacje tutaj są nieodwracalne." style="-fx-text-fill: #ff6b6b; -fx-opacity: 0.7; -fx-font-size: 11px;"/>
+                    </VBox>
+                </HBox>
+                <Separator style="-fx-opacity: 0.1; -fx-padding: 10 0 10 0;"/>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox>
+                        <Label text="Reset Fabryczny" styleClass="settings-label"/>
+                        <Label text="Usuwa trwale wszystkie dane" styleClass="settings-value"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="RESETUJ SYSTEM" onAction="#clearDatabase" styleClass="button-action" style="-fx-background-color: #ff6b6b;"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </HBox>
+</VBox>

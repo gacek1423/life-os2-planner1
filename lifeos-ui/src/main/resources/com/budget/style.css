@@ -103,17 +103,25 @@
 }
 
 /* --- KARTY I KONTENERY --- */
-.card, .card-highlight {
-    -fx-background-color: #262a35;
+.card {
+    /* Subtelny gradient zamiast płaskiego koloru */
+    -fx-background-color: linear-gradient(to bottom right, #2a2e3b, #212530);
     -fx-background-radius: 12;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.15), 10, 0, 0, 4);
-    -fx-border-color: rgba(255,255,255,0.03); /* Bardzo subtelna ramka */
+    /* Delikatna ramka dla kontrastu */
+    -fx-border-color: rgba(255, 255, 255, 0.05);
     -fx-border-radius: 12;
     -fx-border-width: 1;
+    /* Cień dla głębi */
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 15, 0, 0, 5);
 }
 
 .card-highlight {
-    -fx-background-color: linear-gradient(to bottom right, #2a3d4d, #1f2229);
+    /* Wyróżniona karta (np. Saldo) */
+    -fx-background-color: linear-gradient(to bottom right, #2c3e50, #1a252f);
+    -fx-background-radius: 12;
+    -fx-border-color: rgba(79, 163, 199, 0.3); /* Niebieska poświata */
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 15, 0, 0, 5);
 }
 
 .card-title {
@@ -443,4 +451,104 @@
     -fx-border-color: #4fa3c7;
     -fx-border-width: 1;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 50, 0, 0, 10);
+}
+/* --- FIX: COMBO BOX POPUP (Rozwijane menu) --- */
+
+/* Naprawia tło listy rozwijanej - musi być pełne, a nie przezroczyste */
+.combo-box-popup .list-view {
+    -fx-background-color: #262933; /* Ciemne tło, żeby zasłonić to co pod spodem */
+    -fx-background-insets: 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.6), 10, 0, 0, 5); /* Cień dla głębi */
+    -fx-padding: 5;
+}
+
+/* Naprawia pojedyncze wiersze w menu */
+.combo-box-popup .list-cell {
+    -fx-text-fill: #e1e4e8;
+    -fx-background-color: transparent;
+    -fx-padding: 8 10; /* Wygodniejsze odstępy */
+    -fx-font-size: 13px;
+}
+
+/* Podświetlenie po najechaniu myszką w menu */
+.combo-box-popup .list-cell:filled:hover {
+    -fx-background-color: #4fa3c7; /* Niebieski akcent */
+    -fx-text-fill: white;
+    -fx-background-radius: 4;
+}
+
+/* Usunięcie systemowych ramek */
+.combo-box-popup {
+    -fx-background-color: transparent;
+}
+/* --- NOWOCZESNE PASKI PRZEWIJANIA (SCROLLBARS) --- */
+
+/* Domyślny kontener paska */
+.scroll-bar {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+}
+
+/* Ścieżka (tło paska) - przezroczysta */
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0;
+}
+
+/* Suwak (to czym przesuwasz) - Ciemny i zaokrąglony */
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: #323642; /* Ciemnoszary, dyskretny */
+    -fx-background-radius: 10;
+    -fx-background-insets: 2;
+}
+
+/* Suwak po najechaniu - Niebieski akcent */
+.scroll-bar:horizontal .thumb:hover,
+.scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #4fa3c7;
+}
+
+/* Ukrycie przycisków strzałek na pasku */
+.scroll-bar:horizontal .increment-button,
+.scroll-bar:horizontal .decrement-button,
+.scroll-bar:vertical .increment-button,
+.scroll-bar:vertical .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* --- NAPRAWA PORTFELI (PURSES) --- */
+
+/* Kontener ScrollPane dla portfeli */
+.purse-scroll-pane {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+.purse-scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+/* Ukryj pasek pionowy w portfelach (niepotrzebny) */
+.purse-scroll-pane > .scroll-bar:vertical {
+    -fx-opacity: 0;
+    -fx-padding: -10;
+}
+/* --- EDITABLE COMBO BOX FIX --- */
+/* Kiedy ComboBox jest edytowalny, w środku ma TextField. Musimy go ujednolicić */
+.combo-box-base:editable > .text-field {
+    -fx-background-color: transparent;
+    -fx-text-fill: white;
+    -fx-padding: 1; /* Żeby tekst nie skakał */
+}
+
+/* Przycisk strzałki w edytowalnym combo boxie */
+.combo-box-base:editable .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box-base:editable .arrow {
+    -fx-background-color: #8b92a1;
 }
